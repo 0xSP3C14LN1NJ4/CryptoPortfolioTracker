@@ -10,12 +10,12 @@
             <th>Amount</th>
         </tr>
         <tbody>
-            {% for transfert in transferts %}
+            {% for transfer in transfers %}
             <tr>
-                <td>{{ transfert['type'] }}</td>
-                <td>{{ transfert['timestampmp'] }}</td>
-                <td>{{ transfert['currency'] }}</td>
-                <td>{{ transfert['amount'] }}</td>
+                <td>{{ transfer['type'] }}</td>
+                <td>{{ transfer['timestampmp'] }}</td>
+                <td>{{ transfer['currency'] }}</td>
+                <td>{{ transfer['amount'] }}</td>
             </tr>
             {% endfor %}
         </tbody>
