@@ -1,0 +1,31 @@
+{% extends "base.html" %} {% block title %}Transactions{% endblock%} {% block content %}
+<h1>Transactions</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>Price</th>
+            <th>Amount</th>
+            <th>Timestamp</th>
+            <th>Type</th>
+            <th>Fee Amount</th>
+            <th>Fee Currency</th>
+            <th>Symbol</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for transaction in transactions %}
+        <tr>
+            <td>{{ transaction['price'] }}</td>
+            <td>{{ transaction['amount'] }}</td>
+            <td>{{ transaction['timestamp'] }}</td>
+            <td>{{ transaction['type'] }}</td>
+            <td>{{ transaction['fee_amount'] }}</td>
+            <td>{{ transaction['fee_currency'] }}</td>
+            <td>{{ transaction['symbol'] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

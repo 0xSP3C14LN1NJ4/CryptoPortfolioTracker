@@ -1,0 +1,25 @@
+{% extends "base.html" %} {% block title %}Transferts{% endblock%} {% block content %}
+<h1>Transferts</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>Type</th>
+            <th>Timestampms</th>
+            <th>Currency</th>
+            <th>Amount</th>
+        </tr>
+        <tbody>
+            {% for transfert in transferts %}
+            <tr>
+                <td>{{ transfert['type'] }}</td>
+                <td>{{ transfert['timestampmp'] }}</td>
+                <td>{{ transfert['currency'] }}</td>
+                <td>{{ transfert['amount'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </thead>
+</table>
+
+{% endblock %}

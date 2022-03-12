@@ -1,0 +1,110 @@
+/* ----- Body ----- */
+
+body {
+    font-family: sans-serif;
+}
+
+
+/* ----- Nav bar ----- */
+
+.nav-list {
+    border-radius: 4px;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+}
+
+.nav-item .nav-link {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.nav-item .nav-link:hover {
+    background-color: #111;
+}
+
+ul li:hover>ul,
+.dropdown:hover {
+    visibility: visible;
+    display: block;
+}
+
+
+/* ----- Content ----- */
+
+.content {
+    margin-top: 20px;
+}
+
+
+/* ----- Table ----- */
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td,
+th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+tr:hover {
+    background-color: #ddd;
+}
+
+th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #1ec7d0;
+    color: white;
+}
+
+td form {
+    text-align: center;
+}
+
+td form button {
+    border: none;
+    padding: 5px;
+    width: 100%;
+    height: 100%;
+}
+
+
+/* ----- Trading Form ----- */
+
+.trade {
+    width: 30%;
+    background-color: rgb(218, 215, 215);
+    padding: 2px;
+    border-radius: 5px;
+}
+
+.trade * {
+    padding: 5px;
+    margin: 5px;
+    border-radius: 5px;
+    border: none;
+}
+
+.trade button {
+    background-color: #1ec7d0;
+    color: white;
+    padding: 6px;
+}
+
+.trade button:hover {
+    background-color: #04a2aa;
+}

@@ -1,0 +1,72 @@
+{% extends "base.html" %} {% block title %}Trade{% endblock%} {% block content %}
+<h1>Trade</h1>
+<div class="trade">
+    <form action="/trade-form" method="post">
+        <select name="action">
+            <option value="none">Select Action</option>
+            <option value="buy">Buy</option>
+            <option value="sell">Sell</option>
+        </select>
+        <br>
+
+        <input name="quantity1" type="text" placeholder="Quantity 1">
+
+        <!--
+        <form action="/find-currencies" method="post">
+            <input name="currency1" type="text" placeholder="Currency 1">
+            <button type="submit">Find Symbols</button>
+        </form>-->
+
+        <input name="currency1" type="text" placeholder="Currency 1">
+        <br>
+        <input name="quantity2" type="text" placeholder="Quantity 2">
+        <input name="currency2" type="text" placeholder="Currency 2">
+        <br>
+
+
+        <!--
+        <select name="currency2">
+            {% for currency in possible_currencies %}
+            <option value="{{currency}}">currency</option>
+            {% endfor %}
+        </select>-->
+
+        <button type="submit">Trade</button>
+    </form>
+</div>
+
+{% if active_orders is defined %}
+<h3>Active Orders</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Timestamp</th>
+            <th>Symbol</th>
+            <th>Action</th>
+            <th>Price</th>
+            <th>Amount</th>
+            <th>Cancel Order</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in active_orders %}
+        <tr>
+            <td>{{ order['order_id'] }}</td>
+            <td>{{ order['timestamp'] }}</td>
+            <td>{{ order['symbol'] }}</td>
+            <td>{{ order['side'] }}</td>
+            <td>{{ order['price'] }}</td>
+            <td>{{ order['original_amount'] }}</td>
+            <td>
+                <form action="/cancel-order" method="post">
+                    <button type="submit">Cancel</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %} {{ message }} {% if order_cancelled is defined %}
+<h3>Order {{ order_cancelled['order_id'] }} was cancelled!</h3>
+{% endif %} {% endblock %}

@@ -1,0 +1,30 @@
+<html>
+
+<head>
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}"> {% block style %}{% endblock %}
+</head>
+
+<body>
+    <header>
+        <nav>
+            <ul class="nav-list">
+                <li class="nav-item" style="float: left;">
+                    <a class="nav-link" href="/">Portfolio</a>
+                </li>
+                <li class="nav-item" style="float: left;">
+                    <a class="nav-link" href="/transactions">Transactions</a>
+                </li>
+                <li class="nav-item" style="float: left;">
+                    <a class="nav-link" href="/transferts">Transferts</a>
+                </li>
+                <li class="nav-item" style="float: left;">
+                    <a class="nav-link" href="/trade">Trade</a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    {% block content %}{% endblock %}
+</body>
+
+</html>
