@@ -1,11 +1,11 @@
-{% extends "base.html" %} {% block title %}Transferts{% endblock%} {% block content %}
-<h1>Transferts</h1>
+{% extends "base.html" %} {% block title %}Transfers{% endblock%} {% block content %}
+<h1>Transfers</h1>
 
 <table>
     <thead>
         <tr>
             <th>Type</th>
-            <th>Timestampms</th>
+            <th>Date</th>
             <th>Currency</th>
             <th>Amount</th>
         </tr>
@@ -13,7 +13,7 @@
             {% for transfer in transfers %}
             <tr>
                 <td>{{ transfer['type'] }}</td>
-                <td>{{ transfer['timestampmp'] }}</td>
+                <td>{{ transfer['date'] }}</td>
                 <td>{{ transfer['currency'] }}</td>
                 <td>{{ transfer['amount'] }}</td>
             </tr>
