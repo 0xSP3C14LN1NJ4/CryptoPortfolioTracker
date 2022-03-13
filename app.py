@@ -139,17 +139,20 @@ def find_currencies():
 
 
 @app.route('/cancel-order', methods=['POST'])
-def cancel_order(order_id):
+def cancel_order():
+    order_id = request.form['order_id']
+    print(order_id)
     endpoint = "/v1/order/cancel"
     url = base_url + endpoint
     payload = {
         "nonce": get_nonce(),
         "order_id": order_id,
-        "request": endpoint
+        "request": endpoint,
+        "account": account
     }
 
     order_cancelled = execute_request(payload, url)
-    return render_template('/trade.html', order_cancelled)
+    return render_template('/trade.html', order_cancelled=order_cancelled)
 
 def check_symbol(symbol):
     symbols = get_symbols()

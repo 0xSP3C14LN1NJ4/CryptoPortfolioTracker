@@ -34,8 +34,7 @@
         <button type="submit">Trade</button>
     </form>
 </div>
-
-{% if active_orders is defined %}
+{% if active_orders|length %}
 <h3>Active Orders</h3>
 <table>
     <thead>
@@ -60,6 +59,7 @@
             <td>{{ order['original_amount'] }}</td>
             <td>
                 <form action="/cancel-order" method="post">
+                    <input name="order_id" type="hidden" value="{{ order['order_id'] }}">
                     <button type="submit">Cancel</button>
                 </form>
             </td>
