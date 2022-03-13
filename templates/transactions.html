@@ -4,25 +4,23 @@
 <table>
     <thead>
         <tr>
-            <th>Price</th>
-            <th>Amount</th>
             <th>Date</th>
-            <th>Type</th>
-            <th>Fee Amount</th>
-            <th>Fee Currency</th>
             <th>Symbol</th>
+            <th>Type</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Fee Amount</th>
         </tr>
     </thead>
     <tbody>
         {% for transaction in transactions %}
         <tr>
-            <td>{{ transaction['price'] }}</td>
-            <td>{{ transaction['amount'] }}</td>
             <td>{{ transaction['date'] }}</td>
-            <td>{{ transaction['type'] }}</td>
-            <td>{{ transaction['fee_amount'] }}</td>
-            <td>{{ transaction['fee_currency'] }}</td>
             <td>{{ transaction['symbol'] }}</td>
+            <td>{{ transaction['type'] }}</td>
+            <td>{{ transaction['amount'] }}</td>
+            <td>{{ transaction['price'] }} {{ transaction['fee_currency'] }}</td>
+            <td>{{ transaction['fee_amount'] }} {{ transaction['fee_currency'] }}</td>
         </tr>
         {% endfor %}
     </tbody>

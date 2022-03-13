@@ -4,18 +4,16 @@
 <table>
     <thead>
         <tr>
-            <th>Type</th>
             <th>Date</th>
-            <th>Currency</th>
+            <th>Type</th>
             <th>Amount</th>
         </tr>
         <tbody>
             {% for transfer in transfers %}
             <tr>
-                <td>{{ transfer['type'] }}</td>
                 <td>{{ transfer['date'] }}</td>
-                <td>{{ transfer['currency'] }}</td>
-                <td>{{ transfer['amount'] }}</td>
+                <td>{{ transfer['type'] }}</td>
+                <td>{{ transfer['amount'] }} {{ transfer['currency'] }}</td>
             </tr>
             {% endfor %}
         </tbody>
