@@ -8,12 +8,12 @@ import hmac
 import hashlib
 from graphviz import render
 import requests
+from dateutil import parser
 
 app = Flask(__name__)
 
 
 # Sandbox account
-"""
 api_key_file = open("api-key-test.txt")
 gemini_api_key = api_key_file.readline()
 api_key_file.close()
@@ -23,10 +23,10 @@ gemini_api_secret = (api_secret_file.readline()).encode()
 api_secret_file.close()
 
 base_url = "https://api.sandbox.gemini.com"
-"""
+
 
 # Main account
-
+"""
 api_key_file = open("api-key.txt")
 gemini_api_key = api_key_file.readline()
 api_key_file.close()
@@ -36,17 +36,25 @@ gemini_api_secret = (api_secret_file.readline()).encode()
 api_secret_file.close()
 
 base_url = "https://api.gemini.com"
-
+"""
 
 
 account = "primary"
+
+
+# CoinAPI.io API key to calculate the cost basis
+coin_api_key_file = open("api-key-CoinAPI.txt")
+coin_api_key = coin_api_key_file.readline()
+coin_api_key_file.close()
+coin_api_url = 'https://rest.coinapi.io'
+coin_api_headers = {'X-CoinAPI-Key': coin_api_key}
 
 
 @app.route('/')
 def index():
     endpoint = "/v1/notionalbalances/cad"
     url = base_url + endpoint
-    total_balance = 0;
+    total_balance = 0
 
     payload = {
         "nonce": get_nonce(),
@@ -74,6 +82,12 @@ def transactions():
 
     transactions = execute_request(payload, url)
     transactions = timestamps_to_dates(transactions)
+    transactions = get_cost_basis(transactions)
+
+    for transaction in transactions:
+        symbol = transaction['symbol']
+        fee_currency = transaction['fee_currency']
+        transaction['currency'] = symbol.replace(fee_currency, "")
     return render_template("transactions.html", transactions=transactions)
 
 
@@ -91,6 +105,7 @@ def transfers():
 
     transfers = execute_request(payload, url)
     transfers = timestamps_to_dates(transfers)
+    transfers = get_cost_basis(transfers)
     return render_template("transfers.html", transfers=transfers)
 
 
@@ -161,6 +176,7 @@ def cancel_order():
     order_cancelled = execute_request(payload, url)
     return render_template('/trade.html', order_cancelled=order_cancelled)
 
+
 def check_symbol(symbol):
     symbols = get_symbols()
 
@@ -216,10 +232,36 @@ def get_nonce():
     payload_nonce = str(int(time.mktime(t.timetuple())*1000))
     return payload_nonce
 
+
 def timestamps_to_dates(data):
     for item in data:
-        item['date'] = datetime.datetime.fromtimestamp(item['timestampms']/1000).strftime('%Y-%m-%d %H:%M:%S')
+        item['date'] = datetime.datetime.fromtimestamp(
+            item['timestampms']/1000).strftime('%Y-%m-%d %H:%M:%S')
+        item['date_iso'] = datetime.datetime.fromtimestamp(
+            item['timestampms']/1000).replace(microsecond=0).isoformat()
     return data
+
+
+def get_cost_basis(data):
+    for item in data:
+        if item['type'] == 'Buy' or item['type'] == 'Sell':
+            asset_id_base = item['fee_currency']
+        else:
+            asset_id_base = item['currency']
+
+        asset_id_quote = 'CAD'
+        time_start = item['date_iso']
+        time_end = (parser.isoparse(time_start) +
+                    datetime.timedelta(minutes=1)).isoformat()
+
+        endpoint = '/v1/exchangerate/{}/{}/history?period_id=1SEC&time_start={}&time_end={}'.format(
+            asset_id_base, asset_id_quote, time_start, time_end)
+        url = coin_api_url + endpoint
+        response = requests.get(url, headers=coin_api_headers)
+        cost_basis = response.json()
+        item['cost_basis'] = cost_basis[0]['rate_open']
+    return data
+
 
 if __name__ == "__main__":
     app.run(debug=True, host="127.0.0.1", port="5050")

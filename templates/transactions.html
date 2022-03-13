@@ -10,6 +10,7 @@
             <th>Quantity</th>
             <th>Price</th>
             <th>Fee Amount</th>
+            <th>Cost Basis</th>
         </tr>
     </thead>
     <tbody>
@@ -18,9 +19,10 @@
             <td>{{ transaction['date'] }}</td>
             <td>{{ transaction['symbol'] }}</td>
             <td>{{ transaction['type'] }}</td>
-            <td>{{ transaction['amount'] }}</td>
+            <td>{{ transaction['amount'] }} {{ transaction['currency'] }}</td>
             <td>{{ transaction['price'] }} {{ transaction['fee_currency'] }}</td>
             <td>{{ transaction['fee_amount'] }} {{ transaction['fee_currency'] }}</td>
+            <td>{{ '%0.2f' | format(transaction['cost_basis']|float) }} CAD</td>
         </tr>
         {% endfor %}
     </tbody>
