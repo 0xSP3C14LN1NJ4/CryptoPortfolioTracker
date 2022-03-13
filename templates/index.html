@@ -1,6 +1,6 @@
 {% extends "base.html" %} {% block title %}Crypto Portfolio Tracker{% endblock%} {% block content %}
 <h1>Portfolio</h1>
-
+<h2>$ {{ '%0.2f' | format(total_balance|float) }} CAD</h2>
 <table>
     <thead>
         <tr>
@@ -9,11 +9,11 @@
             <th>Quantity</th>
         </tr>
         <tbody>
-            {% for item in balances %}
+            {% for currency in balances %}
             <tr>
-                <td>{{ item['currency'] }}</td>
-                <td>{{ '%0.2f' | format(item['amountNotional']|float) }}</td>
-                <td>{{ item['amount'] }}</td>
+                <td>{{ currency['currency'] }}</td>
+                <td>{{ '%0.2f' | format(currency['amountNotional']|float) }}</td>
+                <td>{{ currency['amount'] }}</td>
             </tr>
             {% endfor %}
         </tbody>

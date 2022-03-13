@@ -13,6 +13,7 @@ app = Flask(__name__)
 
 
 # Sandbox account
+"""
 api_key_file = open("api-key-test.txt")
 gemini_api_key = api_key_file.readline()
 api_key_file.close()
@@ -22,10 +23,10 @@ gemini_api_secret = (api_secret_file.readline()).encode()
 api_secret_file.close()
 
 base_url = "https://api.sandbox.gemini.com"
-
+"""
 
 # Main account
-"""
+
 api_key_file = open("api-key.txt")
 gemini_api_key = api_key_file.readline()
 api_key_file.close()
@@ -35,7 +36,7 @@ gemini_api_secret = (api_secret_file.readline()).encode()
 api_secret_file.close()
 
 base_url = "https://api.gemini.com"
-"""
+
 
 
 account = "primary"
@@ -45,6 +46,7 @@ account = "primary"
 def index():
     endpoint = "/v1/notionalbalances/cad"
     url = base_url + endpoint
+    total_balance = 0;
 
     payload = {
         "nonce": get_nonce(),
@@ -53,7 +55,10 @@ def index():
     }
 
     balances = execute_request(payload, url)
-    return render_template("index.html", balances=balances)
+
+    for currency in balances:
+        total_balance = total_balance + float(currency['amountNotional'])
+    return render_template("index.html", balances=balances, total_balance=total_balance)
 
 
 @app.route('/transactions')
@@ -68,6 +73,7 @@ def transactions():
     }
 
     transactions = execute_request(payload, url)
+    transactions = timestamps_to_dates(transactions)
     return render_template("transactions.html", transactions=transactions)
 
 
@@ -84,6 +90,7 @@ def transfers():
     }
 
     transfers = execute_request(payload, url)
+    transfers = timestamps_to_dates(transfers)
     return render_template("transfers.html", transfers=transfers)
 
 
@@ -209,6 +216,10 @@ def get_nonce():
     payload_nonce = str(int(time.mktime(t.timetuple())*1000))
     return payload_nonce
 
+def timestamps_to_dates(data):
+    for item in data:
+        item['date'] = datetime.datetime.fromtimestamp(item['timestampms']/1000).strftime('%Y-%m-%d %H:%M:%S')
+    return data
 
 if __name__ == "__main__":
     app.run(debug=True, host="127.0.0.1", port="5050")
