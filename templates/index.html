@@ -1,8 +1,10 @@
 {% extends "base.html" %} {% block title %}Crypto Portfolio Tracker{% endblock%} {% block content %} {% block script %}
 <script src=https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js></script>{% endblock %}
 <script src="https://code.jquery.com/jquery-3.6.0.slim.js" integrity="sha256-HwWONEZrpuoh951cQD1ov2HUK5zA5DwJ1DNUXaM6FsY=" crossorigin="anonymous"></script>
-<h1>Portfolio</h1>
-<h2>$ {{ '%0.2f' | format(total_balance|float) }} CAD</h2>
+<div id="totalBalance">
+    <h1>Portfolio</h1>
+    <h2>$ {{ '%0.2f' | format(total_balance|float) }} CAD</h2>
+</div>
 <div id="canvasDiv">
     <canvas id="balancesChart" width="400" height="400"></canvas>
 </div>
@@ -51,7 +53,7 @@
                         'rgba(100,100,100,40)',
                         'rgba(250,200,10,100)',
                         'rgba(240,170,10,95)',
-                        'rgba(50,20,210,85)',
+                        'rgba(135,45,235,95)',
                         'rgba(235,95,0,100)',
                         'rgba(245,215,10,100)',
                         'rgba(235,110,165,95)'

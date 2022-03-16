@@ -1,4 +1,5 @@
 from locale import currency
+from operator import indexOf
 from flask import Flask, render_template, request
 import time
 import datetime
@@ -11,9 +12,10 @@ import requests
 from dateutil import parser
 
 app = Flask(__name__)
-
+LOCAL_CURRENCY = "cad"
 
 # Sandbox account
+"""
 api_key_file = open("api-key-test.txt")
 gemini_api_key = api_key_file.readline()
 api_key_file.close()
@@ -23,10 +25,9 @@ gemini_api_secret = (api_secret_file.readline()).encode()
 api_secret_file.close()
 
 base_url = "https://api.sandbox.gemini.com"
-
+"""
 
 # Main account
-"""
 api_key_file = open("api-key.txt")
 gemini_api_key = api_key_file.readline()
 api_key_file.close()
@@ -36,23 +37,18 @@ gemini_api_secret = (api_secret_file.readline()).encode()
 api_secret_file.close()
 
 base_url = "https://api.gemini.com"
-"""
 
 
 account = "primary"
 
 
-# CoinAPI.io API key to calculate the cost basis
-coin_api_key_file = open("api-key-CoinAPI.txt")
-coin_api_key = coin_api_key_file.readline()
-coin_api_key_file.close()
-coin_api_url = 'https://rest.coinapi.io'
-coin_api_headers = {'X-CoinAPI-Key': coin_api_key}
+# Cryptowat.ch config
+cryptowatch_url = "https://api.cryptowat.ch/markets/gemini"
 
 
 @app.route('/')
 def index():
-    endpoint = "/v1/notionalbalances/cad"
+    endpoint = "/v1/notionalbalances/{}".format(LOCAL_CURRENCY)
     url = base_url + endpoint
     total_balance = 0
 
@@ -82,12 +78,14 @@ def transactions():
 
     transactions = execute_request(payload, url)
     transactions = timestamps_to_dates(transactions)
-    transactions = get_cost_basis(transactions)
 
     for transaction in transactions:
         symbol = transaction['symbol']
         fee_currency = transaction['fee_currency']
         transaction['currency'] = symbol.replace(fee_currency, "")
+
+    transactions = get_usd_value(transactions)
+    transactions = get_cad_value(transactions)
     return render_template("transactions.html", transactions=transactions)
 
 
@@ -105,7 +103,8 @@ def transfers():
 
     transfers = execute_request(payload, url)
     transfers = timestamps_to_dates(transfers)
-    transfers = get_cost_basis(transfers)
+    transfers = get_usd_value(transfers)
+    transfers = get_cad_value(transfers)
     return render_template("transfers.html", transfers=transfers)
 
 
@@ -163,7 +162,6 @@ def find_currencies():
 @app.route('/cancel-order', methods=['POST'])
 def cancel_order():
     order_id = request.form['order_id']
-    print(order_id)
     endpoint = "/v1/order/cancel"
     url = base_url + endpoint
     payload = {
@@ -242,25 +240,63 @@ def timestamps_to_dates(data):
     return data
 
 
-def get_cost_basis(data):
+def get_cad_value(data):
     for item in data:
-        if item['type'] == 'Buy' or item['type'] == 'Sell':
-            asset_id_base = item['fee_currency']
-        else:
-            asset_id_base = item['currency']
+        currency = "usd"
+        usd_value = item['usd_value']
 
-        asset_id_quote = 'CAD'
-        time_start = item['date_iso']
-        time_end = (parser.isoparse(time_start) +
-                    datetime.timedelta(minutes=1)).isoformat()
+        date = item['date']
+        space_index = date.index(' ')
+        date_str = date[0:space_index]
+        date = datetime.datetime.strptime(date_str, '%Y-%m-%d')
+        start_date = date - datetime.timedelta(days=4)
+        start_date_str = datetime.datetime.strftime(start_date, '%Y-%m-%d')
 
-        endpoint = '/v1/exchangerate/{}/{}/history?period_id=1SEC&time_start={}&time_end={}'.format(
-            asset_id_base, asset_id_quote, time_start, time_end)
-        url = coin_api_url + endpoint
-        response = requests.get(url, headers=coin_api_headers)
-        cost_basis = response.json()
-        item['cost_basis'] = cost_basis[0]['rate_open']
+        url = 'https://www.bankofcanada.ca/valet/observations/FX{}{}?order_dir=desc&start_date={}&end_date={}'.format(
+            currency, LOCAL_CURRENCY, start_date_str, date_str)
+        response = requests.get(url)
+        value = response.json()["observations"][0]['fx{}{}'.format(
+            currency, LOCAL_CURRENCY).upper()]['v']
+        item['cad_value'] = float(value) * float(usd_value)
+
     return data
+
+
+def get_usd_value(data):
+    for item in data:
+        price = 1
+        amount = item['amount']
+
+        if item['type'] == 'Buy' or item['type'] == 'Sell':
+            price = item['price']
+            currency= item['fee_currency']
+            quantity = price
+        else:
+            currency = item['currency']
+            quantity = amount
+
+
+        if currency != "USD":
+            item['usd_value'] = get_usd_amount(quantity, currency, item['timestampms'])
+        else:
+            item['usd_value'] = float(amount) * float(price)
+    return data
+
+
+def get_usd_amount(quantity, currency, date):
+    start_ts = int(float(date)/1000)
+    end_ts = int(start_ts + 3600)
+    period = 3600
+
+    params = {
+        'after': start_ts,
+        'before': end_ts,
+        'periods': period,
+    }
+
+    response = requests.get(f'https://api.cryptowat.ch/markets/gemini/{currency}usd/ohlc',params=params)
+    usd_value = response.json()['result'][f'{period}'][0][1] * float(quantity)
+    return usd_value
 
 
 if __name__ == "__main__":

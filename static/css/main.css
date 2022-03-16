@@ -112,4 +112,10 @@ td form button {
 #canvasdiv {
     width: 25%;
     height: 50%;
+    padding: 2%;
+    float: left;
+}
+
+#totalBalance {
+    float: left;
 }

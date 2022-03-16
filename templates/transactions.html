@@ -10,7 +10,7 @@
             <th>Quantity</th>
             <th>Price</th>
             <th>Fee Amount</th>
-            <th>Cost Basis</th>
+            <th>CAD Value</th>
         </tr>
     </thead>
     <tbody>
@@ -22,7 +22,7 @@
             <td>{{ transaction['amount'] }} {{ transaction['currency'] }}</td>
             <td>{{ transaction['price'] }} {{ transaction['fee_currency'] }}</td>
             <td>{{ transaction['fee_amount'] }} {{ transaction['fee_currency'] }}</td>
-            <td>{{ '%0.2f' | format(transaction['cost_basis']|float) }} CAD</td>
+            <td>{{ '%0.2f' | format(transaction['cad_value']|float) }} CAD</td>
         </tr>
         {% endfor %}
     </tbody>
