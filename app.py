@@ -1,5 +1,3 @@
-from locale import currency
-from operator import indexOf
 from flask import Flask, render_template, request
 import time
 import datetime
@@ -9,7 +7,7 @@ import hmac
 import hashlib
 from graphviz import render
 import requests
-from dateutil import parser
+
 
 app = Flask(__name__)
 LOCAL_CURRENCY = "cad"
