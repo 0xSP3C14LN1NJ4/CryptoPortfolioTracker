@@ -2,6 +2,7 @@
 
 This Crypto Portfolio Tracker helps you keep track of your current balances, see your transaction history, see your transfer history and make trades.
 
+**This project is made for accounts on Gemini and the main currency used is Canadian dollars (CAD).**
 
 ## Installation and usage
 - Clone this repository
