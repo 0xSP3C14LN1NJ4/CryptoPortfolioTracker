@@ -1,5 +1,9 @@
 {% extends "base.html" %} {% block title %}Transfers{% endblock%} {% block content %}
-<h1>Transfers</h1>
+<h1 class="title">Transfers</h1>
+
+<form action="/get-transfers" method="post">
+    <button type="submit" class="refresh">Refresh Transfers</button>
+</form>
 
 <table>
     <thead>

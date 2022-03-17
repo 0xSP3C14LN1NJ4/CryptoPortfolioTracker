@@ -11,9 +11,11 @@ import requests
 
 app = Flask(__name__)
 LOCAL_CURRENCY = "cad"
+TRANSACTIONS_FILE = "transactions.txt"
+TRANSFERS_FILE = "transfers.txt"
 
 # Sandbox account
-"""
+
 api_key_file = open("api-key-test.txt")
 gemini_api_key = api_key_file.readline()
 api_key_file.close()
@@ -23,9 +25,10 @@ gemini_api_secret = (api_secret_file.readline()).encode()
 api_secret_file.close()
 
 base_url = "https://api.sandbox.gemini.com"
-"""
+
 
 # Main account
+"""
 api_key_file = open("api-key.txt")
 gemini_api_key = api_key_file.readline()
 api_key_file.close()
@@ -35,7 +38,7 @@ gemini_api_secret = (api_secret_file.readline()).encode()
 api_secret_file.close()
 
 base_url = "https://api.gemini.com"
-
+"""
 
 account = "primary"
 
@@ -65,6 +68,22 @@ def index():
 
 @app.route('/transactions')
 def transactions():
+    transactions = []
+
+    try :
+        with open(TRANSACTIONS_FILE, 'r') as file:
+            transactions = json.load(file)
+    except:
+        get_transactions()
+
+        with open(TRANSACTIONS_FILE, 'r') as file:
+            transactions = json.load(file)
+
+    return render_template("transactions.html", transactions=transactions)
+
+
+@app.route('/get-transactions', methods=["POST"])
+def get_transactions():
     endpoint = "/v1/mytrades"
     url = base_url + endpoint
 
@@ -84,11 +103,30 @@ def transactions():
 
     transactions = get_usd_value(transactions)
     transactions = get_cad_value(transactions)
-    return render_template("transactions.html", transactions=transactions)
 
+    with open(TRANSACTIONS_FILE, 'w') as file:
+        json.dump(transactions, file)
+
+    return render_template("transactions.html", transactions=transactions)
 
 @app.route('/transfers')
 def transfers():
+    transfers = []
+
+    try:
+        with open(TRANSFERS_FILE, 'r') as file:
+            transfers = json.load(file)
+    except:
+        get_transfers()
+
+        with open(TRANSFERS_FILE, 'r') as file:
+            transfers = json.load(file)
+
+    return render_template("transfers.html", transfers=transfers)
+
+
+@app.route('/get-transfers', methods=["POST"])
+def get_transfers():
     endpoint = "/v1/transfers"
     url = base_url + endpoint
 
@@ -103,6 +141,10 @@ def transfers():
     transfers = timestamps_to_dates(transfers)
     transfers = get_usd_value(transfers)
     transfers = get_cad_value(transfers)
+
+    with open(TRANSFERS_FILE, 'w') as file:
+        json.dump(transfers, file)
+        
     return render_template("transfers.html", transfers=transfers)
 
 

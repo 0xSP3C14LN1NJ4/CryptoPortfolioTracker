@@ -119,3 +119,23 @@ td form button {
 #totalBalance {
     float: left;
 }
+
+
+/* ----- Refresh Buttons ----- */
+
+.refresh {
+    background-color: rgb(0, 190, 155);
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    float: right;
+    margin: 15px;
+}
+
+
+/* ----- Titles ----- */
+
+.title {
+    margin: 5px;
+}

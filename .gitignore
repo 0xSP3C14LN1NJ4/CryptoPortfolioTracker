@@ -1,3 +1,5 @@
 api*
 __pycache__/
 .dccache
+transactions.txt
+transfers.txt
