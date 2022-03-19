@@ -11,8 +11,10 @@ import requests
 
 app = Flask(__name__)
 LOCAL_CURRENCY = "cad"
-TRANSACTIONS_FILE = "transactions.txt"
-TRANSFERS_FILE = "transfers.txt"
+
+TRANSACTIONS_FILE = "transactions.json"
+TRANSFERS_FILE = "transfers.json"
+
 
 # Sandbox account
 

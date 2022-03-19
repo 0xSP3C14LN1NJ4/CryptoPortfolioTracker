@@ -1,5 +1,6 @@
 api*
 __pycache__/
 .dccache
-transactions.txt
-transfers.txt
+transactions.json
+transfers.json
+all_data.json

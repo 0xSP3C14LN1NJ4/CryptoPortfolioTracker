@@ -10,7 +10,7 @@ This Crypto Portfolio Tracker helps you keep track of your current balances, see
 $ git clone https://github.com/0xSP3C14LN1NJ4/CryptoPortfolioTracker.git
 ```
 
-- Create `transactions.txt` and `transfers.txt` used to save data for transactions and transfers
+- Create `transactions.json` and `transfers.json` used to save data for transactions and transfers
 
 - Create `api-key.txt` and `api-secret.txt` and type the API Key and the API Secret in their specific file
 
