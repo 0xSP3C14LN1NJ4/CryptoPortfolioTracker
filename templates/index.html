@@ -1,6 +1,8 @@
-{% extends "base.html" %} {% block title %}Crypto Portfolio Tracker{% endblock%} {% block content %} {% block script %}
-<script src=https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js></script>{% endblock %}
+{% extends "base.html" %} {% block title %}Crypto Portfolio Tracker{% endblock%} {% block script %}
+<script src=https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js></script>
 <script src="https://code.jquery.com/jquery-3.6.0.slim.js" integrity="sha256-HwWONEZrpuoh951cQD1ov2HUK5zA5DwJ1DNUXaM6FsY=" crossorigin="anonymous"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/diagram.js') }}"></script>
+{% endblock %} {% block content %}
 <div id="totalBalance">
     <h1 class="title">Portfolio</h1>
     <h2>$ {{ '%0.2f' | format(total_balance|float) }} CAD</h2>
@@ -26,44 +28,4 @@
         </tbody>
     </thead>
 </table>
-<script>
-    window.onload = function() {
-        var chartCanvas = document.getElementById('balancesChart');
-        var balancesTable = document.getElementById('balancesTable');
-        var balancesData = [];
-
-        $('#balancesTable tr').each(function(row, tr) {
-            balancesData[row] = {
-                "currency": $(tr).find('td:eq(0)').text(),
-                "notionalBalance": $(tr).find('td:eq(1)').text(),
-                "quantity": $(tr).find('td:eq(2)').text()
-            }
-        });
-        balancesData.shift();
-
-
-        var chart = new Chart(chartCanvas, {
-            type: "doughnut",
-            data: {
-                labels: ["USD", "BTC", "SHIB", "ETH", "BAT", "ZEC", "SLP"],
-                datasets: [{
-                    label: 'Balance',
-                    data: [balancesData[0].notionalBalance, balancesData[1].notionalBalance, balancesData[2].notionalBalance, balancesData[3].notionalBalance, balancesData[4].notionalBalance, balancesData[5].notionalBalance, balancesData[6].notionalBalance],
-                    backgroundColor: [
-                        'rgba(100,100,100,40)',
-                        'rgba(250,200,10,100)',
-                        'rgba(240,170,10,95)',
-                        'rgba(135,45,235,95)',
-                        'rgba(235,95,0,100)',
-                        'rgba(245,215,10,100)',
-                        'rgba(235,110,165,95)'
-                    ]
-                }]
-            },
-            options: {
-                cutout: "50%"
-            }
-        });
-    }
-</script>
 {% endblock %}
