@@ -16,7 +16,7 @@ $ git clone https://github.com/0xSP3C14LN1NJ4/CryptoPortfolioTracker.git
 
 - Alternatively, if you want to use a sandbox account, create `api-key-test.txt` and `api-secret-test.txt` and type the API Key and the API Secret in their specific file
 
-- At the beginning of `app.py`, uncomment and comment the specific lines according to the account you want to use
+- In `config.py`, uncomment and comment the specific lines according to the account you want to use
 
 - Run the project by running
 ```
