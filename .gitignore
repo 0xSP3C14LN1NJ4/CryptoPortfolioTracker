@@ -3,4 +3,4 @@ __pycache__/
 .dccache
 transactions.json
 transfers.json
-all_data.json
+data.json
