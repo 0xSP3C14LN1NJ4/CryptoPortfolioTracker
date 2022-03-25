@@ -12,8 +12,6 @@ window.onload = function() {
     });
     balancesData.shift();
 
-    console.log(balancesData);
-
     const currencies = [];
     const balances = [];
     const colors = [];
