@@ -12,27 +12,71 @@ window.onload = function() {
     });
     balancesData.shift();
 
+    console.log(balancesData);
+
+    const currencies = [];
+    const balances = [];
+    const colors = [];
+
+    for (item in balancesData) {
+        var currency = balancesData[item];
+
+        currencies.push(currency.currency);
+        balances.push(currency.notionalBalance);
+        colors.push(getColor(currency.currency));
+    }
 
     var chart = new Chart(chartCanvas, {
         type: "doughnut",
         data: {
-            labels: ["USD", "BTC", "SHIB", "ETH", "BAT", "ZEC", "SLP"],
+            labels: currencies,
             datasets: [{
                 label: 'Balance',
-                data: [balancesData[0].notionalBalance, balancesData[1].notionalBalance, balancesData[2].notionalBalance, balancesData[3].notionalBalance, balancesData[4].notionalBalance, balancesData[5].notionalBalance, balancesData[6].notionalBalance],
-                backgroundColor: [
-                    'rgba(100,100,100,40)',
-                    'rgba(250,200,10,100)',
-                    'rgba(240,170,10,95)',
-                    'rgba(135,45,235,95)',
-                    'rgba(235,95,0,100)',
-                    'rgba(245,215,10,100)',
-                    'rgba(235,110,165,95)'
-                ]
+                data: balances,
+                backgroundColor: colors
             }]
         },
         options: {
             cutout: "50%"
         }
     });
+}
+
+
+function getColor(currency) {
+    var color;
+
+    switch (currency) {
+        case "BAT":
+            color = "rgba(235,95,0,100)";
+            break;
+        case "BCH":
+            color = "rgba(110,190,60,100)"
+            break;
+        case "BTC":
+            color = "rgba(250,200,10,100)";
+            break;
+        case "ETH":
+            color = "rgba(85,110,235,95)";
+            break;
+        case "LTC":
+            color = "rgba(185,180,180,100)"
+            break;
+        case "SHIB":
+            color = "rgba(240,170,10,95)";
+            break;
+        case "SLP":
+            color = "rgba(235,110,165,95)";
+            break;
+        case "USD":
+            color = "rgba(100,100,100,40)";
+            break;
+        case "ZEC":
+            color = "rgba(250,220,80,100)";
+            break;
+        default:
+            color = "rgba(0,0,0,0)";
+    }
+
+    return color;
 }
