@@ -12,9 +12,15 @@ $ git clone https://github.com/0xSP3C14LN1NJ4/CryptoPortfolioTracker.git
 
 - Create `transactions.json` and `transfers.json` used to save data for transactions and transfers
 
-- Create `api-key.txt` and `api-secret.txt` and type the API Key and the API Secret in their specific file
+- Generate an API Key on Gemini
+
+- Create `api-key.txt` and `api-secret.txt` and type the Gemini API Key and the Gemini API Secret in their specific file
 
 - Alternatively, if you want to use a sandbox account, create `api-key-test.txt` and `api-secret-test.txt` and type the API Key and the API Secret in their specific file
+
+- Create an account on [Cryptowatch](cryptowat.ch) and generate an API Key
+
+- Create `api-key-cw.txt` and type the Cryptowatch API Key
 
 - In `config.py`, uncomment and comment the specific lines according to the account you want to use
 
