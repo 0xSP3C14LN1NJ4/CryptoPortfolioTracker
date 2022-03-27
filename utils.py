@@ -147,3 +147,47 @@ def get_cad_unit_cost(data):
         item['cad_unit_cost'] = item['cad_value'] / float(item['amount'])
     
     return data
+
+
+def get_years():
+    years = []
+
+    current_year = datetime.date.today().year
+
+    for year in range(current_year, 2020, -1):
+        years.append(year)
+
+    return years
+
+
+def get_year_data(data, year):
+    year_data = []
+
+    for item in data:
+        item_date = item['date']
+        item_year = item_date[0:4]
+
+        if item_year == year:
+            year_data.append(item)
+
+    return year_data
+
+
+def get_last_previous_year(data, current_year):
+    last_year = int(current_year) - 1
+    data = sorted(data, key=lambda d: d['timestampms'], reverse=True)
+    last_item = {
+        "total_income": 0,
+        "total_gain_loss": 0,
+        "buy_sell_profit": 0
+    }
+
+    for item in data:
+        item_date = item['date']
+        item_year = int(item_date[0:4])
+
+        if item_year == last_year:
+            last_item = item
+            break;
+
+    return last_item

@@ -3,9 +3,7 @@ import json
 
 import config
 import utils
-import cost_basis
 
-# TODO superficial loss rule
 
 app = Flask(__name__)
 
@@ -23,6 +21,8 @@ def index():
     }
 
     balances = utils.execute_request(payload, url)
+
+    balances = sorted(balances, key=lambda d: d['amountNotional'], reverse=True)
 
     for currency in balances:
         total_balance = total_balance + float(currency['amountNotional'])
@@ -114,14 +114,32 @@ def get_transfers():
     return render_template("transfers.html", transfers=transfers)
 
 
-@app.route('/all-data')
-def all_data():
+@app.route('/taxes', methods=["GET", "POST"])
+def taxes():
     all_data = []
+    last_item = []
+    previous_year_income = 0
+    previous_year_gain_loss = 0
+    previous_year_buy_sell_profit = 0
 
     with open(config.DATA_FILE, 'r') as file:
         all_data = json.load(file)
 
-    return render_template("all-data.html", all_data=all_data, income=cost_basis.total_income, gain_loss=cost_basis.total_gain_loss, buy_sell_profit=cost_basis.buy_sell_profit)
+    if request.method == "POST" and "year" in request.form:
+       year = request.form['year']
+       last_previous_year_item = utils.get_last_previous_year(all_data, year)
+       all_data = utils.get_year_data(all_data, year)
+       previous_year_income = float(last_previous_year_item['total_income'])
+       previous_year_gain_loss = float(last_previous_year_item['total_gain_loss'])
+       previous_year_buy_sell_profit = float(last_previous_year_item['buy_sell_profit']) 
+       
+    last_item = all_data[-1]
+    income = float(last_item['total_income']) - previous_year_income
+    gain_loss = float(last_item['total_gain_loss']) - previous_year_gain_loss
+    buy_sell_profit = float(last_item['buy_sell_profit']) - previous_year_buy_sell_profit
+    taxable = float(income) + (float(gain_loss) / 2)
+
+    return render_template("taxes.html", all_data=all_data, income=income, gain_loss=gain_loss, buy_sell_profit=buy_sell_profit, years=utils.get_years(), taxable=taxable)
 
 
 @app.route('/trade')
@@ -159,7 +177,7 @@ def trade_form():
         else:
             message = 'Invalid currencies!'
 
-    return render_template('/trade.html', message=message)
+    return render_template('trade.html', message=message)
 
 
 @app.route('/find-currencies', methods=['POST'])
@@ -172,7 +190,7 @@ def find_currencies():
         if symbol.startswith(currency):
             possible_currencies.append(symbol.replace(currency, ''))
 
-    return render_template('/trade-form.html', possible_currencies=possible_currencies)
+    return render_template('trade-form.html', possible_currencies=possible_currencies)
 
 
 @app.route('/cancel-order', methods=['POST'])
@@ -188,7 +206,7 @@ def cancel_order():
     }
 
     order_cancelled = utils.execute_request(payload, url)
-    return render_template('/trade.html', order_cancelled=order_cancelled)
+    return render_template('trade.html', order_cancelled=order_cancelled)
 
 
 if __name__ == "__main__":

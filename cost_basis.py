@@ -1,4 +1,6 @@
 import json
+from dateutil import parser
+import datetime
 
 import config
 
@@ -13,6 +15,9 @@ STATUS_ADVANCED_STR = "Advanced"
 
 total_gain_loss = 0
 total_income = 0
+
+total_buy_cad = 0
+total_sell_cad = 0
 
 buy_sell_profit = 0
 
@@ -62,7 +67,6 @@ variables = [
 ]
 
 
-# Merge content of transactions and transfers
 def merge_data():
     with open(config.TRANSACTIONS_FILE, 'r') as file:
         transactions = json.load(file)
@@ -133,16 +137,16 @@ def set_other_currency(item):
                 temp_currency['cad_value'] += float(cad_value)
 
 
-# Calculate the cost basis and gain/loss and save it to a file
 def get_cost_basis():
     for currency in variables:
         list = currency['list']
         currency_quantity = currency['quantity']
         currency_cad_value = currency['cad_value']
+        total_sell_currency = 0
 
         for item in list:
             type = item['type']
-            amount = item['amount']
+            amount = float(item['amount'])
             cad_value = item['cad_value']
             fee_cad_value = item['fee_cad_value']
             item['total_buy_cad'] = 0
@@ -151,51 +155,32 @@ def get_cost_basis():
             if currency_quantity == 0:
                 item['cost_basis'] = cad_value + fee_cad_value
             else:
-                item['cost_basis'] = (currency_cad_value /
-                                    currency_quantity) * float(amount)
+                item['cost_basis'] = (currency_cad_value / currency_quantity) * amount
 
             if type == TYPE_WITHDRAWAL_STR or type == TYPE_DEPOSIT_STR or type == TYPE_BUY_STR or type == TYPE_ADMIN_CREDIT_STR:
                 item['cost_basis'] = 0
                 gain_loss = 0
 
                 if type != TYPE_WITHDRAWAL_STR:
-                    currency_quantity += float(amount)
+                    currency_quantity += amount
                     currency_cad_value += cad_value + fee_cad_value
-
-                    if type == TYPE_DEPOSIT_STR:
-                        global total_income
-                        total_income += cad_value
 
                     if type == TYPE_BUY_STR:
                         set_other_currency(item)
-                        item['total_buy_cad'] += cad_value
 
             elif type == TYPE_SELL_STR:
-                currency_quantity -= float(amount)
+                currency_quantity -= amount
                 currency_cad_value - + cad_value + fee_cad_value
                 set_other_currency(item)
                 gain_loss = cad_value - float(item['cost_basis'])
-                item['total_sell_cad'] += cad_value
+                total_sell_currency += amount
 
             currency['quantity'] = currency_quantity
             currency['cad_value'] = currency_cad_value
             item['gain_loss'] = gain_loss
-            
-            global total_gain_loss
-            total_gain_loss += gain_loss
-
-    all_data = []
-
-    for currency in variables:
-        all_data += currency['list']
-
-    all_data = sorted(all_data, key=lambda d: d['timestampms'])
-
-    with open(config.DATA_FILE, 'w') as file:
-        json.dump(all_data, file)
+            item['total_sell_currency'] = total_sell_currency
 
 
-# Calculate buy and sell profit/loss
 def get_buy_sell_profit():
     total_buy = 0
     total_sell = 0
@@ -213,7 +198,87 @@ def get_buy_sell_profit():
     return total_sell - total_buy
 
 
+def add_totals(data):
+    total_income = 0
+    total_buy_cad = 0
+    total_sell_cad = 0
+    total_gain_loss = 0
+
+    for item in data:
+        type = item['type']
+        cad_value = item['cad_value']
+        gain_loss = item['gain_loss']
+
+        if type == TYPE_DEPOSIT_STR or type == TYPE_ADMIN_CREDIT_STR:
+            total_income += cad_value
+        elif type == TYPE_BUY_STR:
+            total_buy_cad += cad_value
+        elif type == TYPE_SELL_STR:
+            total_sell_cad += cad_value
+
+        total_gain_loss += gain_loss
+
+        item['total_income'] = total_income
+        item['total_buy_cad'] = total_buy_cad
+        item['total_sell_cad'] = total_sell_cad
+        item['total_gain_loss'] = total_gain_loss
+        item['buy_sell_profit'] = total_sell_cad - total_buy_cad
+
+    return data
+
+
+def check_superficial_loss(transaction, data):
+    gain_loss = transaction['gain_loss']
+    currency = transaction['currency']
+    date = parser.parse(transaction['date'])
+    amount = float(transaction['amount'])
+    temp_amount_before = 0
+    temp_amount_after = 0
+
+    for item in data:
+        temp_type = item['type']
+        temp_currency = item['currency']
+        temp_date = parser.parse(item['date'])
+        temp_amount = float(item['amount'])
+
+        if temp_currency == currency and temp_type == TYPE_BUY_STR:
+            date_delta = date - datetime.timedelta(days=30)
+            if temp_date > date_delta and temp_date < date:
+                temp_amount_before += temp_amount
+
+            date_delta = date + datetime.timedelta(days=30)
+            if temp_date < date_delta and temp_date > date:
+                temp_amount_after += temp_amount
+
+    if amount <= temp_amount_before or amount <= temp_amount_after:
+        gain_loss = 0
+
+    return gain_loss
+
+
+def check_loss_transaction(data):
+    for item in data:
+        type = item['type']
+        gain_loss = float(item['gain_loss'])
+
+        if type == TYPE_SELL_STR and gain_loss < 0:
+            item['gain_loss'] = check_superficial_loss(item, data)
+
+    return data
+
+
 if __name__ == "cost_basis":
     merge_data()
     get_cost_basis()
-    buy_sell_profit = get_buy_sell_profit()
+
+    all_data = []
+
+    for currency in variables:
+        all_data += currency['list']
+
+    all_data = sorted(all_data, key=lambda d: d['timestampms'])
+    all_data = check_loss_transaction(all_data)
+    all_data = add_totals(all_data)
+
+    with open(config.DATA_FILE, 'w') as file:
+        json.dump(all_data, file)
