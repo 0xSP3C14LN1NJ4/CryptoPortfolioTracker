@@ -35,6 +35,13 @@ ul li:hover>ul,
 }
 
 
+/* ----- Titles ----- */
+
+.title {
+    margin: 5px;
+}
+
+
 /* ----- Content ----- */
 
 .content {
@@ -83,6 +90,20 @@ td form button {
 }
 
 
+/* ----- Portfolio ----- */
+
+#canvas-div {
+    width: 25%;
+    height: 50%;
+    padding: 2%;
+    float: left;
+}
+
+#total-balance {
+    float: left;
+}
+
+
 /* ----- Trading Form ----- */
 
 .trade {
@@ -109,17 +130,6 @@ td form button {
     background-color: #04a2aa;
 }
 
-#canvasdiv {
-    width: 25%;
-    height: 50%;
-    padding: 2%;
-    float: left;
-}
-
-#totalBalance {
-    float: left;
-}
-
 
 /* ----- Refresh Buttons ----- */
 
@@ -134,8 +144,23 @@ td form button {
 }
 
 
-/* ----- Titles ----- */
+/* ----- Taxes ----- */
 
-.title {
+.taxes {
+    width: 30%;
+    background-color: rgb(218, 215, 215);
+    padding: 2px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.taxes * {
+    padding: 5px;
     margin: 5px;
+    border-radius: 5px;
+    border: none;
+}
+
+.selected-year {
+    display: inline-block;
 }

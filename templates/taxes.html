@@ -1,18 +1,21 @@
 {% extends "base.html" %} {% block title %}Taxes{% endblock%} {% block content %}
 <h1 class="title">Taxes</h1>
-<h2>Income: $ {{ '%0.2f' | format(income|float) }} CAD</h2>
-<h2>Gain/Loss: $ {{ '%0.2f' | format(gain_loss|float) }} CAD</h2>
-<h2>Buy/Sell Profit: $ {{ '%0.2f' | format(buy_sell_profit|float) }} CAD</h2>
-<h2>Total taxable: $ {{ '%0.2f' | format(taxable|float) }} CAD</h2>
+<div class="taxes">
+    <h3>Income: $ {{ '%0.2f' | format(income|float) }} CAD</h3>
+    <h3>Gain/Loss: $ {{ '%0.2f' | format(gain_loss|float) }} CAD</h3>
+    <h3>Buy/Sell Profit: $ {{ '%0.2f' | format(buy_sell_profit|float) }} CAD</h3>
+    <h3>Total taxable: $ {{ '%0.2f' | format(taxable|float) }} CAD</h3>
+    <h3 class="selected-year">Selected year: </h3>
 
-<form action="/taxes" method="post">
-    <select name="year" onchange="this.form.submit()">
-        <option value="all">All</option>
-        {% for year in years %}
-        <option value="{{year}}">{{year}}</option>
-        {% endfor%}
-    </select>
-</form>
+    <form class="selected-year" action="/taxes" method="post">
+        <select name="year" onchange="this.form.submit()">
+            <option value="all">All</option>
+            {% for year in years %}
+            <option id="{{year}}" value="{{year}}">{{year}}</option>
+            {% endfor%}
+        </select>
+    </form>
+</div>
 
 <table>
     <thead>
@@ -38,5 +41,14 @@
         {% endfor %}
     </tbody>
 </table>
+<script>
+    window.onload = function() {
+        var year = document.getElementById("{{year}}");
+
+        if (year != null) {
+            document.getElementById("{{year}}").selected = "true";
+        }
+    }
+</script>
 
 {% endblock %}

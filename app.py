@@ -121,17 +121,19 @@ def taxes():
     previous_year_income = 0
     previous_year_gain_loss = 0
     previous_year_buy_sell_profit = 0
+    year = "all"
 
     with open(config.DATA_FILE, 'r') as file:
         all_data = json.load(file)
 
     if request.method == "POST" and "year" in request.form:
        year = request.form['year']
-       last_previous_year_item = utils.get_last_previous_year(all_data, year)
-       all_data = utils.get_year_data(all_data, year)
-       previous_year_income = float(last_previous_year_item['total_income'])
-       previous_year_gain_loss = float(last_previous_year_item['total_gain_loss'])
-       previous_year_buy_sell_profit = float(last_previous_year_item['buy_sell_profit']) 
+       if year != "all":
+        last_previous_year_item = utils.get_last_previous_year(all_data, year)
+        all_data = utils.get_year_data(all_data, year)
+        previous_year_income = float(last_previous_year_item['total_income'])
+        previous_year_gain_loss = float(last_previous_year_item['total_gain_loss'])
+        previous_year_buy_sell_profit = float(last_previous_year_item['buy_sell_profit']) 
        
     last_item = all_data[-1]
     income = float(last_item['total_income']) - previous_year_income
@@ -139,7 +141,7 @@ def taxes():
     buy_sell_profit = float(last_item['buy_sell_profit']) - previous_year_buy_sell_profit
     taxable = float(income) + (float(gain_loss) / 2)
 
-    return render_template("taxes.html", all_data=all_data, income=income, gain_loss=gain_loss, buy_sell_profit=buy_sell_profit, years=utils.get_years(), taxable=taxable)
+    return render_template("taxes.html", all_data=all_data, income=income, gain_loss=gain_loss, buy_sell_profit=buy_sell_profit, years=utils.get_years(), year=year, taxable=taxable)
 
 
 @app.route('/trade')
