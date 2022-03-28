@@ -1,9 +1,9 @@
 window.onload = function() {
-    var chartCanvas = document.getElementById('balancesChart');
-    var balancesTable = document.getElementById('balancesTable');
+    var chartCanvas = document.getElementById('balances-chart');
+    var balancesTable = document.getElementById('balances-table');
     var balancesData = [];
 
-    $('#balancesTable tr').each(function(row, tr) {
+    $('#balances-table tr').each(function(row, tr) {
         balancesData[row] = {
             "currency": $(tr).find('td:eq(0)').text(),
             "notionalBalance": $(tr).find('td:eq(1)').text(),

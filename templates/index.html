@@ -3,14 +3,14 @@
 <script src="https://code.jquery.com/jquery-3.6.0.slim.js" integrity="sha256-HwWONEZrpuoh951cQD1ov2HUK5zA5DwJ1DNUXaM6FsY=" crossorigin="anonymous"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/diagram.js') }}"></script>
 {% endblock %} {% block content %}
-<div id="totalBalance">
+<div id="total-balance">
     <h1 class="title">Portfolio</h1>
     <h2>$ {{ '%0.2f' | format(total_balance|float) }} CAD</h2>
 </div>
-<div id="canvasDiv">
-    <canvas id="balancesChart" width="400" height="400"></canvas>
+<div id="canvas-div">
+    <canvas id="balances-chart" width="400" height="400"></canvas>
 </div>
-<table id="balancesTable">
+<table id="balances-table">
     <thead>
         <tr>
             <th>Currency</th>
