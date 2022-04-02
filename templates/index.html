@@ -3,20 +3,48 @@
 <script src="https://code.jquery.com/jquery-3.6.0.slim.js" integrity="sha256-HwWONEZrpuoh951cQD1ov2HUK5zA5DwJ1DNUXaM6FsY=" crossorigin="anonymous"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/diagram.js') }}"></script>
 {% endblock %} {% block content %}
-<div id="total-balance">
+<div>
     <h1 class="title">Portfolio</h1>
     <h2>$ {{ '%0.2f' | format(total_balance|float) }} CAD</h2>
 </div>
 <div id="canvas-div">
     <canvas id="balances-chart" width="400" height="400"></canvas>
 </div>
-<table id="balances-table">
-    <thead>
-        <tr>
-            <th>Currency</th>
-            <th>Notional Balance (CAD)</th>
-            <th>Quantity</th>
-        </tr>
+<div class="table">
+    {% if current_prices %}
+    <h3 class="table-title">Current Prices</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Currency</th>
+                <th>Price (CAD)</th>
+                <th>Price (USD)</th>
+                <th>Change 24h</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for currency in current_prices %} {% if currency['type'] == "crypto" %}
+            <tr>
+                <td>{{ currency['currency'] }}</td>
+                <td>{{ '%1f' | format(currency['price_cad']|float) }}</td>
+                <td>{{ '%1f' | format(currency['price']|float) }}</td>
+                <td>{{ '%0.2f' | format(currency['percentChange24h']|float) }}%</td>
+            </tr>
+            {% endif %} {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+</div>
+<div class="table">
+    <h3 class="table-title">Balances</h3>
+    <table id="balances-table">
+        <thead>
+            <tr>
+                <th>Currency</th>
+                <th>Notional Balance (CAD)</th>
+                <th>Quantity</th>
+            </tr>
+        </thead>
         <tbody>
             {% for currency in balances %}
             <tr>
@@ -26,6 +54,43 @@
             </tr>
             {% endfor %}
         </tbody>
-    </thead>
-</table>
+    </table>
+</div>
+<div class="table">
+    {% if currencies %}
+    <h3 class="table-title">Average Prices</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Currency</th>
+                <th>Average buy (CAD)</th>
+                <th>Average buy (USD)</th>
+                <th>Average sell (CAD)</th>
+                <th>Average sell (USD)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for currency in currencies %} {% if currency['type'] == "crypto" %}
+            <tr>
+                <td>{{ currency['currency'] }}</td>
+                {% if currency['average_buy_cad'] %}
+                <td>{{ '%1f' | format(currency['average_buy_cad']|float) }}</td>
+                <td>{{ '%1f' | format(currency['average_buy_usd']|float) }}</td>
+                {% else %}
+                <td>-</td>
+                <td>-</td>
+                {% endif %} {% if currency['average_sell_cad'] %}
+                <td>{{ '%1f' | format(currency['average_sell_cad']|float) }}</td>
+                <td>{{ '%1f' | format(currency['average_sell_usd']|float) }}</td>
+                {% else %}
+                <td>-</td>
+                <td>-</td>
+                {% endif %}
+            </tr>
+            {% endif %} {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+</div>
+
 {% endblock %}

@@ -45,7 +45,8 @@ def trade_request(action, action_quantity, convert_quantity, symbol):
 def execute_request(payload, url):
     encoded_payload = json.dumps(payload).encode()
     b64 = base64.b64encode(encoded_payload)
-    signature = hmac.new(config.gemini_api_secret, b64, hashlib.sha384).hexdigest()
+    signature = hmac.new(config.gemini_api_secret, b64,
+                         hashlib.sha384).hexdigest()
 
     request_headers = {'Content-Type': "text/plain",
                        'Content-Length': "0",
@@ -137,15 +138,17 @@ def get_usd_amount(quantity, amount, currency, date):
         'X-CW-API-Key': config.cryptowatch_api_key
     }
 
-    response = requests.get(f'{config.cryptowatch_url}/{currency}usd/ohlc', params=params, headers=headers)
-    usd_value = response.json()['result'][f'{period}'][0][1] * float(quantity) * float(amount)
+    response = requests.get(
+        f'{config.cryptowatch_url}/{currency}usd/ohlc', params=params, headers=headers)
+    usd_value = response.json(
+    )['result'][f'{period}'][0][1] * float(quantity) * float(amount)
     return usd_value
 
 
 def get_cad_unit_cost(data):
     for item in data:
         item['cad_unit_cost'] = item['cad_value'] / float(item['amount'])
-    
+
     return data
 
 
@@ -188,6 +191,59 @@ def get_last_previous_year(data, current_year):
 
         if item_year == last_year:
             last_item = item
-            break;
+            break
 
     return last_item
+
+
+def get_pricefeed():
+    endpoint = "/v1/pricefeed"
+    url = config.base_url + endpoint
+
+    response = requests.get(url)
+    return response.json()
+
+
+def get_currencies(data):
+    currencies = []
+
+    for currency in data:
+        currencies.append(
+            {"currency": currency['currency'], "type": currency['type']})
+
+    return currencies
+
+
+def get_current_cad_value(usd_price):
+    symbol = "usdcad"
+    url = 'https://www.bankofcanada.ca/valet/observations/FX{}?recent=1'.format(symbol)
+    response = requests.get(url)
+    value = response.json()["observations"][0]['fx{}'.format(symbol).upper()]['v']
+
+    return float(value) * float(usd_price)
+
+
+def get_current_price(item, prices):
+    currency = item['currency']
+
+    for symbol in prices:
+        pair = symbol['pair']
+
+        if pair == currency + "USD":
+            item['price'] = symbol['price']
+            item['price_cad'] = get_current_cad_value(float(item['price']))
+            item['percentChange24h'] = float(symbol['percentChange24h']) * 100
+
+    return item
+
+
+def get_current_prices(data):
+    currencies = get_currencies(data)
+    prices = get_pricefeed()
+
+    for currency in currencies:
+        type = currency['type']
+
+        if type == "crypto":
+            currency = get_current_price(currency, prices)
+    return currencies

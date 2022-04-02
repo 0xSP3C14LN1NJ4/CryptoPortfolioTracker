@@ -2,6 +2,8 @@ import json
 from dateutil import parser
 import datetime
 
+from jinja2 import TemplateSyntaxError
+
 import config
 
 
@@ -24,45 +26,94 @@ buy_sell_profit = 0
 variables = [
     {
         "currency": "BAT",
+        "type": "crypto",
         "list": [],
         "quantity": 0,
-        "cad_value": 0
+        "cad_value": 0,
+        "quantity_buy": 0,
+        "quantity_sell": 0,
+        "cad_value_buy": 0,
+        "cad_value_sell": 0,
+        "usd_value_buy": 0,
+        "usd_value_sell": 0
     },
     {
         "currency": "BTC",
+        "type": "crypto",
         "list": [],
         "quantity": 0,
-        "cad_value": 0
+        "cad_value": 0,
+        "quantity_buy": 0,
+        "quantity_sell": 0,
+        "cad_value_buy": 0,
+        "cad_value_sell": 0,
+        "usd_value_buy": 0,
+        "usd_value_sell": 0
     },
     {
         "currency": "ETH",
+        "type": "crypto",
         "list": [],
         "quantity": 0,
-        "cad_value": 0
+        "cad_value": 0,
+        "quantity_buy": 0,
+        "quantity_sell": 0,
+        "cad_value_buy": 0,
+        "cad_value_sell": 0,
+        "usd_value_buy": 0,
+        "usd_value_sell": 0
     },
     {
         "currency": "SHIB",
+        "type": "crypto",
         "list": [],
         "quantity": 0,
-        "cad_value": 0
+        "cad_value": 0,
+        "quantity_buy": 0,
+        "quantity_sell": 0,
+        "cad_value_buy": 0,
+        "cad_value_sell": 0,
+        "usd_value_buy": 0,
+        "usd_value_sell": 0
     },
     {
         "currency": "SLP",
+        "type": "crypto",
         "list": [],
         "quantity": 0,
-        "cad_value": 0
+        "cad_value": 0,
+        "quantity_buy": 0,
+        "quantity_sell": 0,
+        "cad_value_buy": 0,
+        "cad_value_sell": 0,
+        "usd_value_buy": 0,
+        "usd_value_sell": 0
     },
     {
         "currency": "USD",
+        "type": "fiat",
         "list": [],
         "quantity": 0,
-        "cad_value": 0
+        "cad_value": 0,
+        "quantity_buy": 0,
+        "quantity_sell": 0,
+        "cad_value_buy": 0,
+        "cad_value_sell": 0,
+        "usd_value_buy": 0,
+        "usd_value_sell": 0
     },
     {
         "currency": "ZEC",
+        "type": "crypto",
         "list": [],
         "quantity": 0,
-        "cad_value": 0
+        "cad_value": 0,
+        "quantity_buy": 0,
+        "quantity_sell": 0,
+        "cad_value_buy": 0,
+        "cad_value_sell": 0,
+        "usd_value_buy": 0,
+        "usd_value_sell": 0
     }
 ]
 
@@ -121,20 +172,27 @@ def merge_data():
 def set_other_currency(item):
     fee_currency = item['fee_currency']
     type = item['type']
-    amount = item['amount']
-    price = item['price']
-    cad_value = item['cad_value']
+    amount = float(item['amount'])
+    price = float(item['price'])
+    cad_value = float(item['cad_value'])
+    usd_value = float(item['usd_value'])
 
     for temp_currency in variables:
         temp_fee_currency = temp_currency['currency']
 
         if fee_currency == temp_fee_currency:
             if type == TYPE_BUY_STR:
-                temp_currency['quantity'] -= float(price) * float(amount)
-                temp_currency['cad_value'] -= float(cad_value)
+                temp_currency['quantity'] -= price * amount
+                temp_currency['cad_value'] -= cad_value
+                temp_currency['quantity_sell'] -= price * amount
+                temp_currency['cad_value_sell'] -= cad_value
+                temp_currency['usd_value_sell'] -= usd_value
             elif type == TYPE_SELL_STR:
-                temp_currency['quantity'] += float(price) * float(amount)
-                temp_currency['cad_value'] += float(cad_value)
+                temp_currency['quantity'] += price * amount
+                temp_currency['cad_value'] += cad_value
+                temp_currency['quantity_buy'] += price * amount
+                temp_currency['cad_value_buy'] += cad_value
+                temp_currency['usd_value_buy'] += usd_value
 
 
 def get_cost_basis():
@@ -148,9 +206,12 @@ def get_cost_basis():
             type = item['type']
             amount = float(item['amount'])
             cad_value = item['cad_value']
+            usd_value = item['usd_value']
             fee_cad_value = item['fee_cad_value']
             item['total_buy_cad'] = 0
             item['total_sell_cad'] = 0
+            item['total_buy_usd'] = 0
+            item['total_sell_usd'] = 0
 
             if currency_quantity == 0:
                 item['cost_basis'] = cad_value + fee_cad_value
@@ -167,18 +228,32 @@ def get_cost_basis():
 
                     if type == TYPE_BUY_STR:
                         set_other_currency(item)
+                        currency['quantity_buy'] += amount
+                        currency['cad_value_buy'] += cad_value
+                        currency['usd_value_buy'] += usd_value
 
             elif type == TYPE_SELL_STR:
                 currency_quantity -= amount
-                currency_cad_value - + cad_value + fee_cad_value
+                currency_cad_value -= cad_value + fee_cad_value
                 set_other_currency(item)
                 gain_loss = cad_value - float(item['cost_basis'])
                 total_sell_currency += amount
+                currency['quantity_sell'] += amount
+                currency['cad_value_sell'] += cad_value
+                currency['usd_value_sell'] += usd_value
 
             currency['quantity'] = currency_quantity
             currency['cad_value'] = currency_cad_value
             item['gain_loss'] = gain_loss
             item['total_sell_currency'] = total_sell_currency
+    
+        if currency['quantity_buy'] != 0:
+            currency['average_buy_cad'] = currency['cad_value_buy'] / currency['quantity_buy']
+            currency['average_buy_usd'] = currency['usd_value_buy'] / currency['quantity_buy']
+
+        if currency['quantity_sell'] != 0:
+            currency['average_sell_cad'] = currency['cad_value_sell'] / currency['quantity_sell']
+            currency['average_sell_usd'] = currency['usd_value_sell'] / currency['quantity_sell']
 
 
 def get_buy_sell_profit():
@@ -270,6 +345,9 @@ def check_loss_transaction(data):
 if __name__ == "cost_basis":
     merge_data()
     get_cost_basis()
+
+    with open(config.CURRENCIES_FILE, 'w') as file:
+        json.dump(variables, file)
 
     all_data = []
 

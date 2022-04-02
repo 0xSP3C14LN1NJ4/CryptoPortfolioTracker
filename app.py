@@ -3,7 +3,7 @@ import json
 
 import config
 import utils
-
+import cost_basis
 
 app = Flask(__name__)
 
@@ -26,7 +26,15 @@ def index():
 
     for currency in balances:
         total_balance = total_balance + float(currency['amountNotional'])
-    return render_template("index.html", balances=balances, total_balance=total_balance)
+
+    try:
+        with open(config.CURRENCIES_FILE, 'r') as file:
+            currencies = json.load(file)
+    except:
+        currencies = []
+
+    current_prices = utils.get_current_prices(currencies)
+    return render_template("index.html", balances=balances, total_balance=total_balance, currencies=currencies, current_prices=current_prices)
 
 
 @app.route('/transactions')

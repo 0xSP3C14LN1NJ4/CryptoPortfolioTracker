@@ -41,6 +41,10 @@ ul li:hover>ul,
     margin: 5px;
 }
 
+.table-title {
+    text-align: center;
+}
+
 
 /* ----- Content ----- */
 
@@ -95,12 +99,14 @@ td form button {
 #canvas-div {
     width: 25%;
     height: 50%;
-    padding: 2%;
     float: left;
+    margin-left: 2%;
 }
 
-#total-balance {
-    float: left;
+.table {
+    float: right;
+    margin-right: 2%;
+    margin-left: 2%;
 }
 
 

@@ -4,3 +4,4 @@ __pycache__/
 transactions.json
 transfers.json
 data.json
+currencies.json
