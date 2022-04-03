@@ -110,7 +110,7 @@ def get_transfers():
         "nonce": utils.get_nonce(),
         "request": endpoint,
         "account": config.account,
-        "limit_transfers": 50
+        "limit_transfers": 50 # TODO multiple calls to get all transfers
     }
 
     transfers = utils.execute_request(payload, url)
@@ -167,6 +167,7 @@ def trade():
     }
 
     orders = utils.execute_request(payload, url)
+    # TODO errors messages
     return render_template("trade.html", active_orders=orders, symbols=utils.get_symbols())
 
 
