@@ -1,6 +1,5 @@
 window.onload = function() {
     var chartCanvas = document.getElementById('balances-chart');
-    var balancesTable = document.getElementById('balances-table');
     var balancesData = [];
 
     $('#balances-table tr').each(function(row, tr) {

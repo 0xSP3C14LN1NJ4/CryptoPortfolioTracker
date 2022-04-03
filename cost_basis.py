@@ -189,23 +189,6 @@ def get_cost_basis():
             currency['average_sell_usd'] = currency['usd_value_sell'] / currency['quantity_sell']
 
 
-def get_buy_sell_profit():
-    total_buy = 0
-    total_sell = 0
-
-    for currency in variables:
-        list = currency['list']
-
-        if list:
-            last_item = list[-1]
-            buy = last_item['total_buy_cad']
-            sell = last_item['total_sell_cad']
-            total_buy += buy
-            total_sell += sell
-
-    return total_sell - total_buy
-
-
 def add_totals(data):
     total_income = 0
     total_buy_cad = 0
