@@ -28,3 +28,21 @@ $ git clone https://github.com/0xSP3C14LN1NJ4/CryptoPortfolioTracker.git
 ```
 $ python3 app.py
 ```
+
+## Screenshots
+NOTE : Unfortunately, I do not hold this much crypto. 🥲 These are screenshots from a sandbox account. 
+
+- Portfolio Tab
+![](screenshots/portfolio.png)
+
+- Transactions Tab
+![](screenshots/transactions.png)
+
+- Transfers Tab
+![](screenshots/transfers.png)
+
+- Taxes Tab
+![](screenshots/taxes.png)
+
+- Trade Tab
+![](screenshots/trade.png) 
