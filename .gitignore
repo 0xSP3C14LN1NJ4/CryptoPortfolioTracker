@@ -1,5 +1,5 @@
-api*
+.DS_Store
 __pycache__/
 .dccache
+api*
 *.json
-.DS_Store
