@@ -8,7 +8,7 @@ BALANCES_FILE = "balances.json"
 
 
 # Sandbox account
-
+"""
 api_key_file = open("api-key-test.txt")
 gemini_api_key = api_key_file.readline()
 api_key_file.close()
@@ -18,10 +18,10 @@ gemini_api_secret = (api_secret_file.readline()).encode()
 api_secret_file.close()
 
 base_url = "https://api.sandbox.gemini.com"
-
+"""
 
 # Main account
-"""
+
 api_key_file = open("api-key.txt")
 gemini_api_key = api_key_file.readline()
 api_key_file.close()
@@ -31,7 +31,7 @@ gemini_api_secret = (api_secret_file.readline()).encode()
 api_secret_file.close()
 
 base_url = "https://api.gemini.com"
-"""
+
 
 account = "primary"
 
