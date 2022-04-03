@@ -27,6 +27,9 @@ def index():
     for currency in balances:
         total_balance = total_balance + float(currency['amountNotional'])
 
+    with open(config.BALANCES_FILE, 'w') as file:
+        json.dump(balances, file)
+
     try:
         with open(config.CURRENCIES_FILE, 'r') as file:
             currencies = json.load(file)

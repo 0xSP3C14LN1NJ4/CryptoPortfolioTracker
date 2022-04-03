@@ -2,8 +2,6 @@ import json
 from dateutil import parser
 import datetime
 
-from jinja2 import TemplateSyntaxError
-
 import config
 
 
@@ -23,10 +21,22 @@ total_sell_cad = 0
 
 buy_sell_profit = 0
 
-variables = [
-    {
-        "currency": "BAT",
-        "type": "crypto",
+variables = []
+
+with open(config.BALANCES_FILE, 'r') as file:
+    balances = json.load(file)
+
+for balance in balances:
+    currency = balance['currency']
+
+    if currency == "USD":
+        type = "fiat"
+    else:
+        type = "crypto"
+        
+    variables.append({
+        "currency": currency,
+        "type": type,
         "list": [],
         "quantity": 0,
         "cad_value": 0,
@@ -35,87 +45,10 @@ variables = [
         "cad_value_buy": 0,
         "cad_value_sell": 0,
         "usd_value_buy": 0,
-        "usd_value_sell": 0
-    },
-    {
-        "currency": "BTC",
-        "type": "crypto",
-        "list": [],
-        "quantity": 0,
-        "cad_value": 0,
-        "quantity_buy": 0,
-        "quantity_sell": 0,
-        "cad_value_buy": 0,
-        "cad_value_sell": 0,
-        "usd_value_buy": 0,
-        "usd_value_sell": 0
-    },
-    {
-        "currency": "ETH",
-        "type": "crypto",
-        "list": [],
-        "quantity": 0,
-        "cad_value": 0,
-        "quantity_buy": 0,
-        "quantity_sell": 0,
-        "cad_value_buy": 0,
-        "cad_value_sell": 0,
-        "usd_value_buy": 0,
-        "usd_value_sell": 0
-    },
-    {
-        "currency": "SHIB",
-        "type": "crypto",
-        "list": [],
-        "quantity": 0,
-        "cad_value": 0,
-        "quantity_buy": 0,
-        "quantity_sell": 0,
-        "cad_value_buy": 0,
-        "cad_value_sell": 0,
-        "usd_value_buy": 0,
-        "usd_value_sell": 0
-    },
-    {
-        "currency": "SLP",
-        "type": "crypto",
-        "list": [],
-        "quantity": 0,
-        "cad_value": 0,
-        "quantity_buy": 0,
-        "quantity_sell": 0,
-        "cad_value_buy": 0,
-        "cad_value_sell": 0,
-        "usd_value_buy": 0,
-        "usd_value_sell": 0
-    },
-    {
-        "currency": "USD",
-        "type": "fiat",
-        "list": [],
-        "quantity": 0,
-        "cad_value": 0,
-        "quantity_buy": 0,
-        "quantity_sell": 0,
-        "cad_value_buy": 0,
-        "cad_value_sell": 0,
-        "usd_value_buy": 0,
-        "usd_value_sell": 0
-    },
-    {
-        "currency": "ZEC",
-        "type": "crypto",
-        "list": [],
-        "quantity": 0,
-        "cad_value": 0,
-        "quantity_buy": 0,
-        "quantity_sell": 0,
-        "cad_value_buy": 0,
-        "cad_value_sell": 0,
-        "usd_value_buy": 0,
-        "usd_value_sell": 0
-    }
-]
+        "usd_value_sell": 0 
+    })
+
+variables = sorted(variables, key=lambda d: d['currency'])
 
 
 def merge_data():
