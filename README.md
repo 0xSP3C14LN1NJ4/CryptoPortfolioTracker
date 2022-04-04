@@ -10,17 +10,19 @@ This Crypto Portfolio Tracker helps you keep track of your current balances, see
 $ git clone https://github.com/0xSP3C14LN1NJ4/CryptoPortfolioTracker.git
 ```
 
-- Create `transactions.json` and `transfers.json` used to save data for transactions and transfers
+- Move into this directory
+```
+$ cd CryptoPortfolioTracker
+```
 
 - Generate an API Key on Gemini
 
-- Create `api-key.txt` and `api-secret.txt` and type the Gemini API Key and the Gemini API Secret in their specific file
-
-- Alternatively, if you want to use a sandbox account, create `api-key-test.txt` and `api-secret-test.txt` and type the API Key and the API Secret in their specific file
-
 - Create an account on [Cryptowatch](cryptowat.ch) and generate an API Key
 
-- Create `api-key-cw.txt` and type the Cryptowatch API Key
+- Run the install script
+```
+./install.sh
+```
 
 - In `config.py`, uncomment and comment the specific lines according to the account you want to use
 
