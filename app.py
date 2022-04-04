@@ -1,3 +1,4 @@
+from ctypes import util
 from flask import Flask, render_template, request
 import json
 
@@ -10,25 +11,11 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    endpoint = "/v1/notionalbalances/{}".format(config.LOCAL_CURRENCY)
-    url = config.base_url + endpoint
-    total_balance = 0
-
-    payload = {
-        "nonce": utils.get_nonce(),
-        "request": endpoint,
-        "account": config.account
-    }
-
-    balances = utils.execute_request(payload, url)
-
-    balances = sorted(balances, key=lambda d: d['amountNotional'], reverse=True)
-
-    for currency in balances:
-        total_balance = total_balance + float(currency['amountNotional'])
-
-    with open(config.BALANCES_FILE, 'w') as file:
-        json.dump(balances, file)
+    try:
+        with open(config.BALANCES_FILE, 'r') as file:
+            balances = json.load(file)
+    except:
+        balances = utils.get_balances()
 
     try:
         with open(config.CURRENCIES_FILE, 'r') as file:
@@ -37,6 +24,9 @@ def index():
         currencies = []
 
     current_prices = utils.get_current_prices(currencies)
+
+    for currency in balances:
+        total_balance = total_balance + float(currency['amountNotional'])
     return render_template("index.html", balances=balances, total_balance=total_balance, currencies=currencies, current_prices=current_prices)
 
 

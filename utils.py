@@ -247,3 +247,24 @@ def get_current_prices(data):
         if type == "crypto":
             currency = get_current_price(currency, prices)
     return currencies
+
+
+def get_balances():
+    endpoint = "/v1/notionalbalances/{}".format(config.LOCAL_CURRENCY)
+    url = config.base_url + endpoint
+    total_balance = 0
+
+    payload = {
+        "nonce": get_nonce(),
+        "request": endpoint,
+        "account": config.account
+    }
+
+    balances = execute_request(payload, url)
+
+    balances = sorted(balances, key=lambda d: d['amountNotional'], reverse=True)
+
+    with open(config.BALANCES_FILE, 'w') as file:
+        json.dump(balances, file)
+
+    return balances
