@@ -3,6 +3,7 @@ from dateutil import parser
 import datetime
 
 import config
+import utils
 
 
 TYPE_DEPOSIT_STR = "Deposit"
@@ -23,8 +24,11 @@ buy_sell_profit = 0
 
 variables = []
 
-with open(config.BALANCES_FILE, 'r') as file:
-    balances = json.load(file)
+try:
+    with open(config.BALANCES_FILE, 'r') as file:
+        balances = json.load(file)
+except:
+    balances = utils.get_balances()
 
 for balance in balances:
     currency = balance['currency']
