@@ -15,9 +15,9 @@ $ git clone https://github.com/0xSP3C14LN1NJ4/CryptoPortfolioTracker.git
 $ cd CryptoPortfolioTracker
 ```
 
-- Generate an API Key on Gemini
+- Generate an API Key on [Gemini](https://exchange.gemini.com/settings/api)
 
-- Create an account on [Cryptowatch](cryptowat.ch) and generate an API Key
+- Create an account on [Cryptowatch](https://cryptowat.ch) and generate an API Key
 
 - Run the install script
 ```
