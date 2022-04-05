@@ -56,8 +56,14 @@ variables = sorted(variables, key=lambda d: d['currency'])
 
 
 def merge_data():
-    with open(config.TRANSACTIONS_FILE, 'r') as file:
-        transactions = json.load(file)
+    try:
+        with open(config.TRANSACTIONS_FILE, 'r') as file:
+            transactions = json.load(file)
+    except:
+        utils.get_transactions()
+
+        with open(config.TRANSACTIONS_FILE, 'r') as file:
+            transactions = json.load(file)
 
     for transaction in transactions:
         transaction.pop("timestamp")
@@ -69,8 +75,14 @@ def merge_data():
         transaction.pop("is_clearing_fill")
         transaction.pop("date_iso")
 
-    with open(config.TRANSFERS_FILE, 'r') as file:
-        transfers = json.load(file)
+    try:
+        with open(config.TRANSFERS_FILE, 'r') as file:
+            transfers = json.load(file)
+    except:
+        utils.get_transfers()
+
+        with open(config.TRANSFERS_FILE, 'r') as file:
+            transfers = json.load(file)
 
     for transfer in transfers:
         type = transfer['type']
