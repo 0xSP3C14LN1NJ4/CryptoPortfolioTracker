@@ -268,3 +268,54 @@ def get_balances():
         json.dump(balances, file)
 
     return balances
+
+
+def get_transactions():
+    endpoint = "/v1/mytrades"
+    url = config.base_url + endpoint
+
+    payload = {
+        "nonce": get_nonce(),
+        "request": endpoint,
+        "account": config.account
+    }
+
+    transactions = execute_request(payload, url)
+    transactions = timestamps_to_dates(transactions)
+
+    for transaction in transactions:
+        symbol = transaction['symbol']
+        fee_currency = transaction['fee_currency']
+        transaction['currency'] = symbol.replace(fee_currency, "")
+
+    transactions = get_usd_value(transactions)
+    transactions = get_cad_value(transactions)
+    transactions = get_cad_unit_cost(transactions)
+
+    with open(config.TRANSACTIONS_FILE, 'w') as file:
+        json.dump(transactions, file)
+
+    return transactions
+
+
+def get_transfers():
+    endpoint = "/v1/transfers"
+    url = config.base_url + endpoint
+
+    payload = {
+        "nonce": get_nonce(),
+        "request": endpoint,
+        "account": config.account,
+        "limit_transfers": 50 # TODO multiple calls to get all transfers
+    }
+
+    transfers = execute_request(payload, url)
+    transfers = timestamps_to_dates(transfers)
+    transfers = get_usd_value(transfers)
+    transfers = get_cad_value(transfers)
+    transfers = get_cad_unit_cost(transfers)
+
+    with open(config.TRANSFERS_FILE, 'w') as file:
+        json.dump(transfers, file)
+
+    return transfers
