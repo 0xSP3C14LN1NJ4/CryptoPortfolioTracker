@@ -1,4 +1,3 @@
-from ctypes import util
 from flask import Flask, render_template, request
 import json
 
