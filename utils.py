@@ -264,9 +264,6 @@ def get_balances():
 
     balances = sorted(balances, key=lambda d: d['amountNotional'], reverse=True)
 
-    with open(config.BALANCES_FILE, 'w') as file:
-        json.dump(balances, file)
-
     return balances
 
 
