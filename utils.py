@@ -61,7 +61,7 @@ def execute_request(payload, url):
 
 def get_nonce():
     t = datetime.datetime.now()
-    payload_nonce = str(int(time.mktime(t.timetuple())*1000))
+    payload_nonce = str(int(round(time.time() * 1000)))
     return payload_nonce
 
 

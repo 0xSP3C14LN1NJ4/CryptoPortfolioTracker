@@ -10,7 +10,9 @@ TYPE_DEPOSIT_STR = "Deposit"
 TYPE_WITHDRAWAL_STR = "Withdrawal"
 TYPE_ADMIN_CREDIT_STR = "AdminCredit"
 TYPE_BUY_STR = "Buy"
+TYPE_BUY_OTHER_STR = "Buy_other"
 TYPE_SELL_STR = "Sell"
+TYPE_SELL_OTHER_STR = "Sell_other"
 STATUS_COMPLETE_STR = "Complete"
 STATUS_ADVANCED_STR = "Advanced"
 
@@ -27,17 +29,20 @@ variables = []
 
 balances = utils.get_balances()
 
+with open (config.BALANCES_FILE, 'w') as file:
+    json.dump(balances, file)
+
 for balance in balances:
     currency = balance['currency']
 
     if currency == "USD":
-        type = "fiat"
+        currency_type = "fiat"
     else:
-        type = "crypto"
+        currency_type = "crypto"
         
     variables.append({
         "currency": currency,
-        "type": type,
+        "type": currency_type,
         "list": [],
         "quantity": 0,
         "cad_value": 0,
@@ -82,17 +87,17 @@ def merge_data():
             transfers = json.load(file)
 
     for transfer in transfers:
-        type = transfer['type']
+        transfer_type = transfer['type']
         status = transfer['status']
 
         transfer.pop("status")
         transfer.pop("eid")
         transfer.pop("date_iso")
 
-        if type == TYPE_DEPOSIT_STR or type == TYPE_WITHDRAWAL_STR:
+        if transfer_type == TYPE_DEPOSIT_STR or transfer_type == TYPE_WITHDRAWAL_STR:
             transfer.pop("destination")
 
-            if type == TYPE_DEPOSIT_STR and status == STATUS_COMPLETE_STR:
+            if transfer_type == TYPE_DEPOSIT_STR and status == STATUS_COMPLETE_STR:
                 transfer.pop("method")
                 transfer.pop("source")
                 transfer.pop("transferId")
@@ -115,41 +120,55 @@ def merge_data():
                 currency['list'].append(item)
 
 
-def set_other_currency(item):
-    fee_currency = item['fee_currency']
-    type = item['type']
-    amount = float(item['amount'])
-    price = float(item['price'])
-    cad_value = float(item['cad_value'])
-    usd_value = float(item['usd_value'])
+def set_other_currencies():
+    other_currencies = []
 
-    for temp_currency in variables:
-        temp_fee_currency = temp_currency['currency']
+    for currency in variables:
+        list = currency['list']
 
-        if fee_currency == temp_fee_currency:
-            if type == TYPE_BUY_STR:
-                temp_currency['quantity'] -= price * amount
-                temp_currency['cad_value'] -= cad_value
-                temp_currency['quantity_sell'] -= price * amount
-                temp_currency['cad_value_sell'] -= cad_value
-                temp_currency['usd_value_sell'] -= usd_value
-            elif type == TYPE_SELL_STR:
-                temp_currency['quantity'] += price * amount
-                temp_currency['cad_value'] += cad_value
-                temp_currency['quantity_buy'] += price * amount
-                temp_currency['cad_value_buy'] += cad_value
-                temp_currency['usd_value_buy'] += usd_value
+        for item in list:
+            item_type = item['type']
+
+            if item_type == TYPE_BUY_STR or item_type == TYPE_SELL_STR:
+                temp_item = item.copy()
+                temp_item['type'] = item_type + "_other"
+                other_currencies.append(temp_item)
+
+    for other_transaction in other_currencies:
+        for currency in variables:
+            currency_name = currency['currency']
+            list = currency['list']
+            final_list = list.copy()
+
+            other_currency_name = other_transaction['fee_currency']
+            other_timestampms = other_transaction['timestampms']
+            if other_currency_name == currency_name:
+                if list:
+                    for item in list:
+                        timestampms = item['timestampms']
+                        index = final_list.index(item)
+
+                        if other_timestampms >= timestampms:
+                            final_list.insert(index + 1, other_transaction)
+                            break;
+                else:
+                    final_list.append(other_transaction)
+            currency['list'] = final_list
+    
+    return variables
 
 
 def get_cost_basis():
+    variables = set_other_currencies()
+
     for currency in variables:
         list = currency['list']
-        currency_quantity = currency['quantity']
-        currency_cad_value = currency['cad_value']
+        currency_quantity = float(currency['quantity'])
+        currency_cad_value = float(currency['cad_value'])
         total_sell_currency = 0
 
         for item in list:
-            type = item['type']
+            item_type = item['type']
             amount = float(item['amount'])
             cad_value = item['cad_value']
             usd_value = item['usd_value']
@@ -159,34 +178,44 @@ def get_cost_basis():
             item['total_buy_usd'] = 0
             item['total_sell_usd'] = 0
 
+            if "price" in item:
+                price = float(item['price'])
+
             if currency_quantity == 0:
-                item['cost_basis'] = cad_value + fee_cad_value
+                item['cost_basis'] = 0
             else:
                 item['cost_basis'] = (currency_cad_value / currency_quantity) * amount
 
-            if type == TYPE_WITHDRAWAL_STR or type == TYPE_DEPOSIT_STR or type == TYPE_BUY_STR or type == TYPE_ADMIN_CREDIT_STR:
+            if item_type == TYPE_WITHDRAWAL_STR or item_type == TYPE_DEPOSIT_STR or item_type == TYPE_BUY_STR or item_type == TYPE_SELL_OTHER_STR or item_type == TYPE_ADMIN_CREDIT_STR:
                 item['cost_basis'] = 0
                 gain_loss = 0
 
-                if type != TYPE_WITHDRAWAL_STR:
-                    currency_quantity += amount
+                if item_type != TYPE_WITHDRAWAL_STR:
                     currency_cad_value += cad_value + fee_cad_value
 
-                    if type == TYPE_BUY_STR:
-                        set_other_currency(item)
-                        currency['quantity_buy'] += amount
-                        currency['cad_value_buy'] += cad_value
-                        currency['usd_value_buy'] += usd_value
+                    if item_type != TYPE_SELL_OTHER_STR:
+                        currency_quantity += amount
 
-            elif type == TYPE_SELL_STR:
-                currency_quantity -= amount
+                        if item_type == TYPE_BUY_STR:
+                            currency['cad_value_buy'] += cad_value
+                            currency['usd_value_buy'] += usd_value
+                            currency['quantity_buy'] += amount
+                    else:
+                        currency_quantity += amount * price
+
+            elif item_type == TYPE_SELL_STR or item_type == TYPE_BUY_OTHER_STR:
                 currency_cad_value -= cad_value + fee_cad_value
-                set_other_currency(item)
-                gain_loss = cad_value - float(item['cost_basis'])
-                total_sell_currency += amount
-                currency['quantity_sell'] += amount
-                currency['cad_value_sell'] += cad_value
-                currency['usd_value_sell'] += usd_value
+                
+                if item_type == TYPE_SELL_STR:
+                    gain_loss = cad_value - float(item['cost_basis'])
+                    currency_quantity -= amount
+                    total_sell_currency += amount
+                    currency['quantity_sell'] += amount
+                    currency['cad_value_sell'] += cad_value
+                    currency['usd_value_sell'] += usd_value
+                else:
+                    item['cost_basis'] = 0
+                    currency_quantity -= amount * price
 
             currency['quantity'] = currency_quantity
             currency['cad_value'] = currency_cad_value
@@ -209,15 +238,15 @@ def add_totals(data):
     total_gain_loss = 0
 
     for item in data:
-        type = item['type']
+        item_type = item['type']
         cad_value = item['cad_value']
         gain_loss = item['gain_loss']
 
-        if type == TYPE_DEPOSIT_STR or type == TYPE_ADMIN_CREDIT_STR:
+        if item_type == TYPE_DEPOSIT_STR or item_type == TYPE_ADMIN_CREDIT_STR:
             total_income += cad_value
-        elif type == TYPE_BUY_STR:
+        elif item_type == TYPE_BUY_STR:
             total_buy_cad += cad_value
-        elif type == TYPE_SELL_STR:
+        elif item_type == TYPE_SELL_STR:
             total_sell_cad += cad_value
 
         total_gain_loss += gain_loss
@@ -262,10 +291,10 @@ def check_superficial_loss(transaction, data):
 
 def check_loss_transaction(data):
     for item in data:
-        type = item['type']
+        item_type = item['type']
         gain_loss = float(item['gain_loss'])
 
-        if type == TYPE_SELL_STR and gain_loss < 0:
+        if item_type == TYPE_SELL_STR and gain_loss < 0:
             item['gain_loss'] = check_superficial_loss(item, data)
 
     return data
@@ -281,7 +310,16 @@ if __name__ == "cost_basis":
     all_data = []
 
     for currency in variables:
-        all_data += currency['list']
+        list = currency['list']
+        final_list = list.copy()
+
+        for item in list:
+            type = item['type']
+            
+            if type == TYPE_BUY_OTHER_STR or type == TYPE_SELL_OTHER_STR:
+                final_list.remove(item)
+
+        all_data += final_list
 
     all_data = sorted(all_data, key=lambda d: d['timestampms'])
     all_data = check_loss_transaction(all_data)
