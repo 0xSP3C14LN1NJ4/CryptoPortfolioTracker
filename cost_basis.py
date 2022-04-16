@@ -156,7 +156,7 @@ def set_other_currencies():
             currency['list'] = final_list
     
     return variables
-
+    
 
 def get_cost_basis():
     variables = set_other_currencies()
@@ -181,11 +181,6 @@ def get_cost_basis():
             if "price" in item:
                 price = float(item['price'])
 
-            if currency_quantity == 0:
-                item['cost_basis'] = 0
-            else:
-                item['cost_basis'] = (currency_cad_value / currency_quantity) * amount
-
             if item_type == TYPE_WITHDRAWAL_STR or item_type == TYPE_DEPOSIT_STR or item_type == TYPE_BUY_STR or item_type == TYPE_SELL_OTHER_STR or item_type == TYPE_ADMIN_CREDIT_STR:
                 item['cost_basis'] = 0
                 gain_loss = 0
@@ -203,19 +198,16 @@ def get_cost_basis():
                     else:
                         currency_quantity += amount * price
 
-            elif item_type == TYPE_SELL_STR or item_type == TYPE_BUY_OTHER_STR:
-                currency_cad_value -= cad_value + fee_cad_value
-                
+            else:
                 if item_type == TYPE_SELL_STR:
+                    item['cost_basis'] = (currency_cad_value / currency_quantity) * amount
                     gain_loss = cad_value - float(item['cost_basis'])
-                    currency_quantity -= amount
                     total_sell_currency += amount
                     currency['quantity_sell'] += amount
                     currency['cad_value_sell'] += cad_value
                     currency['usd_value_sell'] += usd_value
                 else:
                     item['cost_basis'] = 0
-                    currency_quantity -= amount * price
 
             currency['quantity'] = currency_quantity
             currency['cad_value'] = currency_cad_value
@@ -274,7 +266,7 @@ def check_superficial_loss(transaction, data):
         temp_date = parser.parse(item['date'])
         temp_amount = float(item['amount'])
 
-        if temp_currency == currency and temp_type == TYPE_BUY_STR:
+        if temp_currency == currency and (temp_type == TYPE_BUY_STR or temp_type == TYPE_DEPOSIT_STR):
             date_delta = date - datetime.timedelta(days=30)
             if temp_date > date_delta and temp_date < date:
                 temp_amount_before += temp_amount
