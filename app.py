@@ -10,7 +10,8 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    balances = utils.get_balances()
+    with open(config.BALANCES_FILE, 'r') as file:
+        balances = json.load(file)
 
     try:
         with open(config.CURRENCIES_FILE, 'r') as file:
@@ -171,4 +172,4 @@ def cancel_order():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="127.0.0.1", port="5051")
+    app.run(debug=True, host="127.0.0.1", port="5050")
