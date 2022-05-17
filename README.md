@@ -40,6 +40,9 @@ NOTE : Unfortunately, I do not hold this much crypto. 🥲 These are screenshots
 - Transactions Tab
 ![](screenshots/transactions.png)
 
+- Add Transaction Tab
+![](screenshots/add_transaction.png)
+
 - Transfers Tab
 ![](screenshots/transfers.png)
 
