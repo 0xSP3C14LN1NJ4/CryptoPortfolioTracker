@@ -110,36 +110,46 @@ td form button {
 }
 
 
-/* ----- Trading Form ----- */
+/* ----- Forms ----- */
 
-.trade {
+.form {
     width: 30%;
     background-color: rgb(218, 215, 215);
     padding: 2px;
     border-radius: 5px;
 }
 
-.trade * {
+.form form {
+    height: fit-content;
+}
+
+.form * {
     padding: 5px;
     margin: 5px;
     border-radius: 5px;
     border: none;
+    height: 25px;
+    font-family: arial;
 }
 
-.trade button {
+.form button {
     background-color: #1ec7d0;
     color: white;
     padding: 6px;
 }
 
-.trade button:hover {
+.form button:hover {
     background-color: #04a2aa;
 }
 
 
-/* ----- Refresh Buttons ----- */
+/* ----- Buttons ----- */
 
-.refresh {
+.button {
+    float: right;
+}
+
+.button button {
     background-color: rgb(0, 190, 155);
     color: white;
     border: none;

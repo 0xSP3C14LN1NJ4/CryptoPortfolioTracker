@@ -1,0 +1,31 @@
+{% extends "base.html" %} {% block title %}Transactions{% endblock%} {% block content %}
+<h1 class="title">Add a Transaction</h1>
+<div class="form">
+    <form action="/add-transaction-form" method="post">
+        <input name="exchange" type="text" placeholder="Exchange">
+        <input name="date" type="date" placeholder="Date">
+        <input name="time" type="time" placeholder="Time">
+        <br>
+
+        <select name="action">
+            <option value="none">Select Action</option>
+            <option value="Buy">Buy</option>
+            <option value="Sell">Sell</option>
+        </select>
+        <br>
+
+        <input name="quantity1" type="text" placeholder="Quantity">
+        <input name="currency1" type="text" placeholder="Currency">
+        <br>
+        <input name="quantity2" type="text" placeholder="Price">
+        <input name="currency2" type="text" placeholder="Currency">
+        <br>
+        <input name="fee" type="text" placeholder="Fee">
+        <input name="fee-currency" type="text" placeholder="Currency">
+        <br>
+
+        <button type="submit">Add transaction</button>
+    </form>
+</div>
+
+{% endblock %}

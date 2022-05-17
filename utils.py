@@ -216,9 +216,11 @@ def get_currencies(data):
 
 def get_current_cad_value(usd_price):
     symbol = "usdcad"
-    url = 'https://www.bankofcanada.ca/valet/observations/FX{}?recent=1'.format(symbol)
+    url = 'https://www.bankofcanada.ca/valet/observations/FX{}?recent=1'.format(
+        symbol)
     response = requests.get(url)
-    value = response.json()["observations"][0]['fx{}'.format(symbol).upper()]['v']
+    value = response.json()[
+        "observations"][0]['fx{}'.format(symbol).upper()]['v']
 
     return float(value) * float(usd_price)
 
@@ -262,7 +264,8 @@ def get_balances():
 
     balances = execute_request(payload, url)
 
-    balances = sorted(balances, key=lambda d: d['amountNotional'], reverse=True)
+    balances = sorted(
+        balances, key=lambda d: d['amountNotional'], reverse=True)
 
     return balances
 
@@ -278,6 +281,15 @@ def get_transactions():
     }
 
     transactions = execute_request(payload, url)
+
+    with open(config.MANUAL_TRANSACTIONS_FILE, 'r') as file:
+        manual_transactions = json.load(file)
+
+    for transaction in manual_transactions:
+        transactions.append(transaction)
+
+    transactions = sorted(transactions, key=lambda d: d['timestampms'])
+
     transactions = timestamps_to_dates(transactions)
 
     for transaction in transactions:
@@ -303,7 +315,7 @@ def get_transfers():
         "nonce": get_nonce(),
         "request": endpoint,
         "account": config.account,
-        "limit_transfers": 50 # TODO multiple calls to get all transfers
+        "limit_transfers": 50  # TODO multiple calls to get all transfers
     }
 
     transfers = execute_request(payload, url)
@@ -316,3 +328,50 @@ def get_transfers():
         json.dump(transfers, file)
 
     return transfers
+
+
+def date_to_timestamp(date, time):
+    date_index = date.index('-')
+    date_year = date[:date_index]
+    date = date.replace(date_year + '-', '', 1)
+    date_index = date.index('-')
+    date_month = date[:date_index]
+    date_day = date.replace(date_month + '-', '')
+
+    time_index = time.index(':')
+    time_hour = time[:time_index]
+    time_minute = time[time_index + 1:]
+
+    dtime = datetime.datetime(int(date_year), int(date_month), int(
+        date_day), int(time_hour), int(time_minute))
+    timestamp = int(dtime.timestamp())
+
+    return timestamp
+
+
+def add_transaction(exchange, date, time, action, quantity, price, symbol, fee, fee_currency):
+    timestamp = date_to_timestamp(date, time)
+    timestampms = timestamp * 1000
+
+    exchange = exchange.lower()
+    exchange = exchange.capitalize()
+
+    symbol = symbol.upper()
+    fee_currency = fee_currency.upper()
+
+    manual_transactions = []
+
+    manual_transactions.append(
+        {"price": price,
+         "amount": quantity,
+         "timestamp": timestamp,
+         "timestampms": timestampms,
+         "type": action,
+         "fee_currency": fee_currency,
+         "fee_amount": fee,
+         "exchange": exchange,
+         "symbol": symbol
+         })
+
+    with open(config.MANUAL_TRANSACTIONS_FILE, 'w') as file:
+        json.dump(manual_transactions, file)

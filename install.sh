@@ -3,6 +3,7 @@
 echo "Creating necessary files"
 touch transactions.json
 touch transfers.json
+touch manual_transactions.json
 echo -e "Done!\n"
 
 

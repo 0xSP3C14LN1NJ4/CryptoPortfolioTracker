@@ -5,7 +5,6 @@ import datetime
 import config
 import utils
 
-
 TYPE_DEPOSIT_STR = "Deposit"
 TYPE_WITHDRAWAL_STR = "Withdrawal"
 TYPE_ADMIN_CREDIT_STR = "AdminCredit"
@@ -29,7 +28,7 @@ variables = []
 
 balances = utils.get_balances()
 
-with open (config.BALANCES_FILE, 'w') as file:
+with open(config.BALANCES_FILE, 'w') as file:
     json.dump(balances, file)
 
 for balance in balances:
@@ -39,7 +38,7 @@ for balance in balances:
         currency_type = "fiat"
     else:
         currency_type = "crypto"
-        
+
     variables.append({
         "currency": currency,
         "type": currency_type,
@@ -51,7 +50,7 @@ for balance in balances:
         "cad_value_buy": 0,
         "cad_value_sell": 0,
         "usd_value_buy": 0,
-        "usd_value_sell": 0 
+        "usd_value_sell": 0
     })
 
 variables = sorted(variables, key=lambda d: d['currency'])
@@ -69,12 +68,12 @@ def merge_data():
 
     for transaction in transactions:
         transaction.pop("timestamp")
-        transaction.pop("aggressor")
-        transaction.pop("tid")
-        transaction.pop("order_id")
+        transaction.pop("aggressor", None)
+        transaction.pop("tid", None)
+        transaction.pop("order_id", None)
         transaction.pop("exchange")
-        transaction.pop("is_auction_fill")
-        transaction.pop("is_clearing_fill")
+        transaction.pop("is_auction_fill", None)
+        transaction.pop("is_clearing_fill", None)
         transaction.pop("date_iso")
 
     try:
@@ -150,13 +149,13 @@ def set_other_currencies():
 
                         if other_timestampms >= timestampms:
                             final_list.insert(index + 1, other_transaction)
-                            break;
+                            break
                 else:
                     final_list.append(other_transaction)
             currency['list'] = final_list
-    
+
     return variables
-    
+
 
 def get_cost_basis():
     variables = set_other_currencies()
@@ -200,7 +199,8 @@ def get_cost_basis():
 
             else:
                 if item_type == TYPE_SELL_STR:
-                    item['cost_basis'] = (currency_cad_value / currency_quantity) * amount
+                    item['cost_basis'] = (
+                        currency_cad_value / currency_quantity) * amount
                     gain_loss = cad_value - float(item['cost_basis'])
                     total_sell_currency += amount
                     currency['quantity_sell'] += amount
@@ -213,14 +213,18 @@ def get_cost_basis():
             currency['cad_value'] = currency_cad_value
             item['gain_loss'] = gain_loss
             item['total_sell_currency'] = total_sell_currency
-    
+
         if currency['quantity_buy'] != 0:
-            currency['average_buy_cad'] = currency['cad_value_buy'] / currency['quantity_buy']
-            currency['average_buy_usd'] = currency['usd_value_buy'] / currency['quantity_buy']
+            currency['average_buy_cad'] = currency['cad_value_buy'] / \
+                currency['quantity_buy']
+            currency['average_buy_usd'] = currency['usd_value_buy'] / \
+                currency['quantity_buy']
 
         if currency['quantity_sell'] != 0:
-            currency['average_sell_cad'] = currency['cad_value_sell'] / currency['quantity_sell']
-            currency['average_sell_usd'] = currency['usd_value_sell'] / currency['quantity_sell']
+            currency['average_sell_cad'] = currency['cad_value_sell'] / \
+                currency['quantity_sell']
+            currency['average_sell_usd'] = currency['usd_value_sell'] / \
+                currency['quantity_sell']
 
 
 def add_totals(data):
@@ -307,7 +311,7 @@ if __name__ == "cost_basis":
 
         for item in list:
             type = item['type']
-            
+
             if type == TYPE_BUY_OTHER_STR or type == TYPE_SELL_OTHER_STR:
                 final_list.remove(item)
 

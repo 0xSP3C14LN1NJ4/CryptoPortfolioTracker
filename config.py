@@ -5,6 +5,7 @@ TRANSFERS_FILE = "transfers.json"
 DATA_FILE = "data.json"
 CURRENCIES_FILE = "currencies.json"
 BALANCES_FILE = "balances.json"
+MANUAL_TRANSACTIONS_FILE = "manual_transactions.json"
 
 
 # Sandbox account

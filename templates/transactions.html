@@ -1,8 +1,12 @@
 {% extends "base.html" %} {% block title %}Transactions{% endblock%} {% block content %}
 <h1 class="title">Transactions</h1>
 
-<form action="/get-transactions" method="post">
-    <button type="submit" class="refresh">Refresh</button>
+<form action="/get-transactions" method="post" class="button">
+    <button type="submit">Refresh</button>
+</form>
+
+<form action="/add-transaction" method="post" class="button">
+    <button type="submit">Add a manual transaction</button>
 </form>
 
 <table>

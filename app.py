@@ -50,6 +50,42 @@ def get_transactions():
     return render_template("transactions.html", transactions=transactions)
 
 
+@app.route('/add-transaction', methods=["POST"])
+def add_transaction():
+    return render_template("add_transaction.html")
+
+
+@app.route('/add-transaction-form', methods=["POST"])
+def add_transaction_form():
+    message = ""
+
+    if 'exchange' in request.form and 'date' in request.form and 'time' in request.form and 'action' in request.form and 'quantity1' in request.form and 'currency1' in request.form and 'quantity2' in request.form and 'currency2' in request.form:
+        exchange = request.form['exchange']
+        date = request.form['date']
+        time = request.form['time']
+
+        action = request.form['action']
+        quantity1 = request.form['quantity1']
+        currency1 = request.form['currency1']
+
+        quantity2 = request.form['quantity2']
+        currency2 = request.form['currency2']
+
+        fee = request.form['fee']
+        fee_currency = request.form['fee-currency']
+
+        symbol = currency1 + currency2
+
+        if utils.check_symbol(symbol) and (fee_currency == currency1 or fee_currency == currency2):
+            details = utils.add_transaction(
+                exchange, date, time, action, quantity1, quantity2, symbol, fee, fee_currency)
+            message = 'Details : {}'.format(details)
+        else:
+            message = 'Invalid currencies!'
+
+    return render_template('transactions.html', message=message)
+
+
 @app.route('/transfers')
 def transfers():
     transfers = []
@@ -86,18 +122,23 @@ def taxes():
         all_data = json.load(file)
 
     if request.method == "POST" and "year" in request.form:
-       year = request.form['year']
-       if year != "all":
-        last_previous_year_item = utils.get_last_previous_year(all_data, year)
-        all_data = utils.get_year_data(all_data, year)
-        previous_year_income = float(last_previous_year_item['total_income'])
-        previous_year_gain_loss = float(last_previous_year_item['total_gain_loss'])
-        previous_year_buy_sell_profit = float(last_previous_year_item['buy_sell_profit']) 
-       
+        year = request.form['year']
+        if year != "all":
+            last_previous_year_item = utils.get_last_previous_year(
+                all_data, year)
+            all_data = utils.get_year_data(all_data, year)
+            previous_year_income = float(
+                last_previous_year_item['total_income'])
+            previous_year_gain_loss = float(
+                last_previous_year_item['total_gain_loss'])
+            previous_year_buy_sell_profit = float(
+                last_previous_year_item['buy_sell_profit'])
+
     last_item = all_data[-1]
     income = float(last_item['total_income']) - previous_year_income
     gain_loss = float(last_item['total_gain_loss']) - previous_year_gain_loss
-    buy_sell_profit = float(last_item['buy_sell_profit']) - previous_year_buy_sell_profit
+    buy_sell_profit = float(
+        last_item['buy_sell_profit']) - previous_year_buy_sell_profit
     taxable = float(income) + (float(gain_loss) / 2)
 
     return render_template("taxes.html", all_data=all_data, income=income, gain_loss=gain_loss, buy_sell_profit=buy_sell_profit, years=utils.get_years(), year=year, taxable=taxable)
