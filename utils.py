@@ -124,24 +124,33 @@ def get_usd_value(data):
 
 
 def get_usd_amount(quantity, amount, currency, date):
-    start_ts = int(float(date)/1000)
-    end_ts = int(start_ts + 3600)
-    period = 3600
-
-    params = {
-        'after': start_ts,
-        'before': end_ts,
-        'periods': period
-    }
-
+    periods = [60, 180, 300, 900, 1800, 3600, 7200, 14400, 21600, 43200, 86400, 259200, 604800]
+    
     headers = {
         'X-CW-API-Key': config.cryptowatch_api_key
     }
 
-    response = requests.get(
-        f'{config.cryptowatch_url}/{currency}usd/ohlc', params=params, headers=headers)
-    usd_value = response.json(
-    )['result'][f'{period}'][0][1] * float(quantity) * float(amount)
+    i = 0
+    while True:
+        period = periods[i]
+        start_ts = int(float(date)/1000)
+        end_ts = int(start_ts + period)
+
+        try:
+            params = {
+                'before': end_ts,
+                'after': start_ts,
+                'periods': period
+            }
+            response = requests.get(
+                f'{config.cryptowatch_url}/{currency}usd/ohlc', params=params, headers=headers)
+            usd_value = response.json(
+            )['result'][f'{period}'][0][1] * float(quantity) * float(amount)
+        except IndexError:
+            i += 1
+        else:
+            break
+            
     return usd_value
 
 
